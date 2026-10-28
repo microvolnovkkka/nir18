@@ -1,0 +1,64 @@
+name: nir18
+
+x-backend: &backend
+  image: nir18-backend:local
+  build: ./backend
+
+services:
+  db:
+    image: postgres:18-bookworm
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-nir}
+      POSTGRES_DB: ${POSTGRES_DB:-nir}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Create .env with scripts/init-env.sh}
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 3s
+      timeout: 3s
+      retries: 15
+      start_period: 10s
+
+  migrate:
+    <<: *backend
+    command: ["/app/migrate"]
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-nir}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-nir}?sslmode=disable
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    <<: *backend
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-nir}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-nir}?sslmode=disable
+      HTTP_ADDR: 0.0.0.0:8081
+      MEDIA_DIR: /var/lib/nir/media
+      APP_ORIGIN: ${APP_ORIGIN:-http://localhost:8080}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      BOT_MODE: ${BOT_MODE:-stub}
+    volumes:
+      - media_data:/var/lib/nir/media
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1:8081/api/health/ready"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  web:
+    build: ./frontend
+    ports:
+      - "127.0.0.1:${WEB_PORT:-8080}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  media_data:

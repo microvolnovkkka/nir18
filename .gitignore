@@ -1,0 +1,18 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
+coverage/
+*.log
+*.test
+backend/bin/
+.local/
+backups/
+*.dump
+*.tar.gz
+# Локальная история подготовки и снимки не входят в публикуемый пакет.
+docs/archive/
+docs/reference/
+/*.png
