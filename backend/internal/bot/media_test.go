@@ -38,3 +38,16 @@ func TestUnsupportedImagesFailClosed(t *testing.T) {
 		}
 	}
 }
+
+func TestProtectedImagesCanonicalContexts(t *testing.T) {
+	dest := "(/media/30000000-0000-4000-8000-000000000001)"
+	for _, alt := range []string{"", "Схема", "**Схема**", "[подпись]", "`x]y`", "`x[y`", "``x`]y``", "` x]y `", "строка\nпродолжение", "`строка\n]продолжение`", "`x]" + dest + "y`"} {
+		image := "![" + alt + "]" + dest
+		for _, context := range []string{image, "Текст: " + image, "> " + image, "- " + image, "[" + image + "](https://example.com)"} {
+			got, err := ProtectedImages(context)
+			if err != nil || !reflect.DeepEqual(got, []string{image}) {
+				t.Errorf("%q: images=%q err=%v", context, got, err)
+			}
+		}
+	}
+}

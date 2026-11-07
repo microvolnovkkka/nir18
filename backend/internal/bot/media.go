@@ -45,7 +45,7 @@ func ProtectedImages(markdown string) ([]string, error) {
 			if start < 0 || start+2 > len(source) || string(source[start:start+2]) != "![" {
 				return ast.WalkStop, errors.New("image source position unavailable")
 			}
-			end, err := inlineImageEnd(source, start)
+			end, err := inlineImageEnd(source, start, n)
 			if err != nil {
 				return ast.WalkStop, err
 			}
@@ -60,9 +60,30 @@ func ProtectedImages(markdown string) ([]string, error) {
 	return images, err
 }
 
-func inlineImageEnd(source []byte, start int) (int, error) {
+func inlineImageEnd(source []byte, start int, image *ast.Image) (int, error) {
+	// Brackets inside an inline code span are literal alt text, not image
+	// delimiters. Use the parsed spans instead of interpreting their contents
+	// a second time; this also handles multiline spans and repeated backticks.
+	var codeSpans []text.Segment
+	_ = ast.Walk(image, func(node ast.Node, entering bool) (ast.WalkStatus, error) {
+		if span, ok := node.(*ast.CodeSpan); entering && ok && span.HasChildren() {
+			first := span.FirstChild().(*ast.Text).Segment
+			last := span.LastChild().(*ast.Text).Segment
+			codeSpans = append(codeSpans, text.NewSegment(first.Start, last.Stop))
+			return ast.WalkSkipChildren, nil
+		}
+		return ast.WalkContinue, nil
+	})
+	spanIndex := 0
 	depth := 1
 	for i := start + 2; i < len(source); i++ {
+		for spanIndex < len(codeSpans) && i >= codeSpans[spanIndex].Stop {
+			spanIndex++
+		}
+		if spanIndex < len(codeSpans) && i >= codeSpans[spanIndex].Start {
+			i = codeSpans[spanIndex].Stop - 1
+			continue
+		}
 		switch source[i] {
 		case '\\':
 			i++
