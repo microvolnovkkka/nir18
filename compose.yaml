@@ -37,6 +37,11 @@ services:
       HTTP_ADDR: 0.0.0.0:8081
       MEDIA_DIR: /var/lib/nir/media
       APP_ORIGIN: ${APP_ORIGIN:-http://localhost:8080}
+      TRUST_PROXY: "true"
+      LOGIN_PAIR_LIMIT: ${LOGIN_PAIR_LIMIT:-5}
+      LOGIN_IP_LIMIT: ${LOGIN_IP_LIMIT:-30}
+      TEMP_MEDIA_COUNT: ${TEMP_MEDIA_COUNT:-100}
+      TEMP_MEDIA_BYTES: ${TEMP_MEDIA_BYTES:-524288000}
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
       BOT_MODE: ${BOT_MODE:-stub}
     volumes:

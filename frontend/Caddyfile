@@ -1,7 +1,9 @@
 :80 {
     @backend path /api /api/* /media /media/*
     handle @backend {
-        reverse_proxy api:8081
+        reverse_proxy api:8081 {
+            header_up X-Nir-Client-IP {remote_host}
+        }
     }
     handle {
         root * /srv

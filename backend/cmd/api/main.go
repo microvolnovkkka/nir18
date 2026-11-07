@@ -31,9 +31,29 @@ func run() error {
 	if addr == "" {
 		addr = "127.0.0.1:8081"
 	}
-	srv := &http.Server{Addr: addr, Handler: httpapi.Router(pool), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 30 * time.Second, WriteTimeout: 110 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 1 << 20}
+	app, err := httpapi.New(pool, httpapi.Config{Origin: os.Getenv("APP_ORIGIN"), MediaDir: os.Getenv("MEDIA_DIR"), Secure: os.Getenv("COOKIE_SECURE") == "true", TrustProxy: os.Getenv("TRUST_PROXY") == "true"})
+	if err != nil {
+		return err
+	}
+	go func() {
+		ticker := time.NewTicker(time.Hour)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				cleanCtx, cancel := context.WithTimeout(ctx, 5*time.Minute)
+				if err := app.Cleanup(cleanCtx); err != nil {
+					slog.Error("media cleanup failed")
+				}
+				cancel()
+			}
+		}
+	}()
+	srv := &http.Server{Addr: addr, Handler: app.Handler(), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 30 * time.Second, WriteTimeout: 110 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 1 << 20}
 	errs := make(chan error, 1)
-	go func() { slog.Info("technical API listening", "addr", addr); errs <- srv.ListenAndServe() }()
+	go func() { slog.Info("API listening", "addr", addr); errs <- srv.ListenAndServe() }()
 	select {
 	case err = <-errs:
 		if !errors.Is(err, http.ErrServerClosed) {
