@@ -14,6 +14,7 @@ const Markdown = lazy(() =>
   import("./Markdown").then((module) => ({ default: module.Markdown })),
 );
 import "./style.css";
+import { About } from "./About";
 
 const date = (value: string) =>
   new Intl.DateTimeFormat("ru-RU", {
@@ -114,8 +115,17 @@ function Catalog() {
     setFilters((old) => ({ ...old, page: "1", ...values }));
   useEffect(() => {
     const q = new URLSearchParams(Object.entries(filters).filter(([, v]) => v));
-    history.replaceState(null, "", location.pathname + (q.size ? "?" + q : ""));
+    history.replaceState(
+      null,
+      "",
+      location.pathname + (q.size ? "?" + q : "") + location.hash,
+    );
   }, [filters]);
+  useEffect(() => {
+    if (location.hash === "#materials") {
+      document.getElementById("materials")?.scrollIntoView();
+    }
+  }, []);
   const submit = (e: FormEvent) => {
     e.preventDefault();
     change({ q: search.trim() });
@@ -476,44 +486,6 @@ function Workspace({ session }: { session: Session | null | undefined }) {
       >
         Мои материалы ↗
       </a>
-    </section>
-  );
-}
-function About() {
-  const authors = useData<{ items: Author[] }>("/api/authors");
-  return (
-    <section className="article">
-      <p className="eyebrow">О ПРОЕКТЕ</p>
-      <h1>
-        Учимся понимать
-        <br />
-        <span>человека.</span>
-      </h1>
-      <p className="lead">
-        НИР18 — научный блог команды, изучающей мультимодальное распознавание
-        эмоций и жестов.
-      </p>
-      <p>
-        Мы собираем теоретическую основу: от моделей эмоций и ключевых точек
-        лица до динамических жестов, объединения сигналов и взаимодействия с
-        роботами. Публикации блога — наши отчёты о научно-исследовательской
-        работе.
-      </p>
-      <p>
-        Практическая система распознавания и интеграция с ROS 2 относятся к
-        будущему этапу. Здесь мы делимся изученными подходами, источниками и
-        выводами.
-      </p>
-      <h2>Пять участников. Общий взгляд.</h2>
-      {authors.error ? (
-        <ErrorNotice message={authors.error} retry={authors.retry} />
-      ) : (
-        <ul className="team">
-          {authors.data?.items.map((a) => (
-            <li key={a.id}>{a.display_name}</li>
-          ))}
-        </ul>
-      )}
     </section>
   );
 }
