@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ru">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>НИР · Проверка DeepSeek</title><link rel="stylesheet" href="/assets/style.css"><script defer src="/assets/app.js"></script></head>
+<body>
+ <header><a class="brand" href="/">нир<span>18</span></a><span class="local"><i></i> Локальная лаборатория</span><span id="connection" class="connection">Проверяем подключение…</span></header>
+ <main>
+  <div class="intro"><div><p class="eyebrow">DEEPSEEK FLASH / СТАТЬИ ДЛЯ НИР</p><h1>Из заметок —<br>в научный текст.</h1><p class="lead">Проверьте, как модель собирает статью, задаёт вопросы<br class="desktop"> и сохраняет авторские правки.</p></div><div class="intro-note"><span>01 / ТЕСТОВЫЙ СТЕНД</span><p>Ответ можно проверить и скопировать.<br>Публикацию выполняет автор на сайте.</p></div></div>
+  <div class="workspace">
+   <section class="panel input-panel" aria-labelledby="input-title">
+    <div class="panel-heading"><h2 id="input-title">Материал автора</h2><button type="button" class="quiet" id="new-test">Новый тест</button></div>
+    <form id="request-form">
+     <label for="title">Тема статьи</label><input id="title" name="title" maxlength="200" required value="Статические и динамические жесты">
+     <div class="field-heading"><label for="message">Заметки или уточнение</label><span>до 20 000 символов</span></div>
+     <textarea id="message" name="message" rows="9" maxlength="20000" required placeholder="Вставьте тезисы, фрагменты источников и задачу для модели…"></textarea>
+     <div class="examples"><span>Попробовать:</span><button type="button" data-example="review">Обзор</button><button type="button" data-example="missing">Нет данных</button><button type="button" data-example="injection">Инъекция</button><button type="button" data-example="images">Изображения</button></div>
+     <details><summary>Текущий Markdown редактора <span id="draft-count">0 символов</span></summary><p class="hint">Добавьте авторские правки и inline-вставки изображений. Этот текст актуальнее старых ответов чата. Стенд проверяет синтаксис ссылок; права на файлы проверит основной сайт.</p><textarea id="current-markdown" rows="8" maxlength="200000" placeholder="# Текст с вашими правками"></textarea></details>
+     <fieldset><legend>Режим модели</legend><label class="mode"><input type="radio" name="thinking" value="false" checked><span><strong>Быстрый</strong><small>Без блока рассуждений</small></span></label><label class="mode"><input type="radio" name="thinking" value="true"><span><strong>С рассуждением</strong><small>Измеряем полный ответ</small></span></label></fieldset>
+     <div class="submit-row"><button class="primary" id="send" type="submit">Подготовить ответ <span>↗</span></button><button id="cancel" type="button" class="cancel" hidden>Отменить</button></div>
+     <p class="hint">Каждая отправка вызывает платный API. До 90 секунд ожидания, до 5 запросов в минуту. Автоматических повторов нет.</p>
+    </form>
+   </section>
+   <section class="panel output-panel" aria-labelledby="output-title">
+    <div class="panel-heading"><h2 id="output-title">Ответ модели</h2><span id="kind" class="kind">Ещё нет ответа</span></div>
+    <div class="metrics"><div><span>Время</span><strong id="elapsed">—</strong></div><div><span>Токены всего</span><strong id="tokens">—</strong></div><div><span>JSON</span><strong id="json-state">—</strong></div><div><span>Рассуждение</span><strong id="reasoning">—</strong></div></div>
+    <div id="notice" class="notice" role="status" hidden></div>
+    <div class="tabs" role="tablist"><button type="button" id="tab-markdown" role="tab" aria-selected="true" aria-controls="view-markdown">Markdown</button><button type="button" id="tab-json" role="tab" aria-selected="false" aria-controls="view-json">JSON и замеры</button></div>
+    <div id="empty" class="empty"><span class="empty-mark">Aa</span><h3>Здесь появится ваш материал</h3><p>Начните с примера «Обзор» или вставьте свои заметки.<br>Если данных мало, модель задаст уточняющий вопрос.</p></div>
+    <pre id="view-markdown" class="answer" role="tabpanel" aria-labelledby="tab-markdown" hidden></pre><pre id="view-json" class="answer json" role="tabpanel" aria-labelledby="tab-json" hidden></pre>
+    <ul id="warnings" class="warnings" hidden></ul>
+    <div class="output-actions"><span id="history-count">Диалог: 0 сообщений</span><button id="copy" type="button" disabled>Скопировать Markdown</button><button id="download" type="button" disabled>Скачать .md</button></div>
+   </section>
+  </div>
+  <footer><p>Материалы и история хранятся только в памяти вкладки. Перезагрузка их сбросит.</p><p id="model-label">deepseek-flash · контракт 1.0</p></footer>
+ </main>
+</body></html>
