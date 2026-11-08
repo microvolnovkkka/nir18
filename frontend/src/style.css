@@ -73,25 +73,12 @@ header {
 .brand {
   font-size: 34px;
   font-weight: 800;
-  letter-spacing: -2px;
+  letter-spacing: -1.5px;
   text-decoration: none;
   white-space: nowrap;
 }
 .brand span {
   color: #168a9c;
-}
-.brand i {
-  font-size: 20px;
-  font-style: normal;
-  display: inline-grid;
-  place-items: center;
-  background: #b5ffd1;
-  width: 29px;
-  height: 29px;
-  border-radius: 50%;
-  margin-left: 8px;
-  vertical-align: middle;
-  letter-spacing: 0;
 }
 header nav {
   display: flex;
@@ -132,14 +119,14 @@ header a:hover {
 .hero {
   padding: 70px 5% 60px;
   display: grid;
-  grid-template-columns: 1.1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: center;
-  gap: 20px;
+  gap: 48px;
   overflow: hidden;
 }
 .eyebrow {
-  font: 11px/1.6 monospace;
-  letter-spacing: 1.5px;
+  font: 600 12px/1.7 monospace;
+  letter-spacing: 1.1px;
   margin: 0 0 23px;
   display: flex;
   align-items: center;
@@ -197,13 +184,82 @@ h3 {
 .primary:hover {
   background: #06587c;
 }
+.hero > div {
+  min-width: 0;
+}
+.hero h1 {
+  font-size: clamp(38px, 4.2vw, 60px);
+}
 .hero-meta {
   display: flex;
-  gap: 35px;
-  font: 11px monospace;
-  letter-spacing: 0.3px;
+  flex-wrap: wrap;
+  gap: 16px 24px;
   margin-top: 33px;
-  color: #66838a;
+  color: #3e626e;
+}
+.hero-meta > span {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 14px;
+}
+.hero-meta strong {
+  font-size: 25px;
+  font-weight: 500;
+  color: #08697e;
+}
+.research-signal {
+  min-width: 0;
+  margin: 0;
+}
+.research-signal svg {
+  display: block;
+  width: 100%;
+  overflow: visible;
+}
+.research-signal figcaption {
+  text-align: center;
+  color: #426774;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.research-signal figcaption span {
+  margin: 0 8px;
+  color: #087e85;
+}
+.landmark-mesh {
+  animation: mesh-appear 2.4s ease-out both;
+}
+.landmark-points {
+  animation: points-appear 3.6s ease-out both;
+}
+.signal-connection {
+  animation: mesh-appear 4.5s ease-out both;
+}
+@keyframes mesh-appear {
+  from {
+    opacity: 0;
+    stroke-dasharray: 2 12;
+  }
+  to {
+    opacity: 1;
+    stroke-dasharray: 0;
+  }
+}
+@keyframes points-appear {
+  0%,
+  25% {
+    opacity: 0;
+  }
+  65% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 0.45;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 .signal {
   position: relative;
@@ -212,37 +268,23 @@ h3 {
   background: radial-gradient(ellipse, #e0f8ee 0, transparent 67%);
 }
 .signal svg {
-  width: 118%;
-  margin-left: -9%;
+  width: 100%;
+  margin-left: 0;
   display: block;
   overflow: visible;
 }
 .waves {
   transform-origin: 50% 50%;
-  animation: wave 12s ease-in-out infinite;
-}
-.signal:hover .waves {
-  animation-duration: 6s;
-}
-.paused .waves {
-  animation-play-state: paused;
+  animation: wave 4.5s ease-in-out 1;
 }
 .signal-caption {
-  font: 9px monospace;
+  font: 12px monospace;
   letter-spacing: 1.4px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin: 0 20px;
   color: #537c85;
-}
-.signal-caption button {
-  border: 1px solid #b4d7d0;
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  background: transparent;
-  color: var(--ink);
 }
 @keyframes wave {
   0%,
@@ -299,18 +341,24 @@ aside button {
   display: flex;
   text-align: left;
   gap: 12px;
-  font-size: 13px;
-  line-height: 1.45;
+  font-size: 15px;
+  line-height: 1.55;
   background: none;
   border: 0;
   border-radius: 5px;
-  color: #52717a;
+  color: #3d606e;
   padding: 14px 12px;
 }
 aside button span {
-  font: 10px monospace;
-  margin-top: 3px;
-  color: #789a9b;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 25px;
+  height: 25px;
+  font: 600 13px monospace;
+  color: #286975;
+  background: #edf5f3;
+  border: 1px solid #d3e4e0;
+  border-radius: 7px;
 }
 aside button.selected {
   background: #ddf6ec;
@@ -323,8 +371,8 @@ aside button:hover {
   background: #ecf8f5;
 }
 .side-note {
-  color: #7a9195;
-  font-size: 11px;
+  color: #496b76;
+  font-size: 13px;
   line-height: 1.8;
   margin: 30px 12px;
 }
@@ -365,9 +413,9 @@ aside button:hover {
 label {
   display: flex;
   flex-direction: column;
-  font-size: 11px;
+  font-size: 13px;
   gap: 8px;
-  color: #557580;
+  color: #3d626f;
 }
 input,
 select {
@@ -377,7 +425,7 @@ select {
   border-radius: 4px;
   background: white;
   padding: 11px;
-  font-size: 12px;
+  font-size: 14px;
   width: 100%;
 }
 .filters select {
@@ -391,14 +439,14 @@ select {
   margin-top: 25px;
   padding-bottom: 15px;
   border-bottom: 1px solid var(--line);
-  font-size: 11px;
-  color: #71909a;
+  font-size: 13px;
+  color: #496b76;
 }
 .text-button {
   border: 0;
   background: none;
   color: #367c8b;
-  font-size: 11px;
+  font-size: 13px;
   padding: 5px;
 }
 .empty {
@@ -423,7 +471,7 @@ select {
   line-height: 1.7;
   max-width: 360px;
   margin: 12px auto;
-  color: #6d8991;
+  color: #496b76;
 }
 .article-row {
   padding: 25px 0;
@@ -745,7 +793,13 @@ footer > span {
   border-bottom: 1px solid var(--line);
 }
 .about-number {
-  font-size: 30px;
+  display: inline-grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  background: #e0f5ed;
+  border-radius: 12px;
+  font-size: 26px;
   font-weight: 400;
   letter-spacing: -1px;
   color: #078391;
@@ -777,13 +831,8 @@ footer > span {
   font-size: 12px;
   margin: 0 0 18px;
 }
-.about-initials {
-  color: #52717d;
-  font-size: 12px;
-  margin: 8px 0 24px;
-}
 .about-team dl {
-  margin: 0;
+  margin: 22px 0 0;
   font-size: 13px;
   line-height: 1.65;
 }
@@ -849,7 +898,9 @@ footer > span {
     grid-column: 2;
   }
   .about-number {
-    font-size: 24px;
+    width: 30px;
+    height: 32px;
+    font-size: 20px;
   }
 }
 .skip,
@@ -934,7 +985,7 @@ footer > span {
     letter-spacing: -2px;
   }
   .eyebrow {
-    font-size: 9px;
+    font-size: 11px;
   }
   .lead {
     font-size: 15px;
@@ -956,7 +1007,17 @@ footer > span {
     font-size: 7px;
   }
   .hero-meta {
-    font-size: 10px;
+    gap: 14px;
+  }
+  .hero-meta > span {
+    font-size: 12px;
+    gap: 5px;
+  }
+  .hero-meta strong {
+    font-size: 23px;
+  }
+  .research-signal {
+    margin-top: 28px;
   }
   .catalog {
     padding: 30px 20px 50px;
@@ -986,7 +1047,7 @@ footer > span {
     min-width: 155px;
     max-width: 210px;
     flex-shrink: 0;
-    font-size: 11px;
+    font-size: 13px;
     padding: 11px;
   }
   aside h3,
@@ -997,7 +1058,7 @@ footer > span {
     gap: 10px;
   }
   .filters label {
-    font-size: 10px;
+    font-size: 12px;
   }
   .filters input,
   .filters select {
@@ -1051,7 +1112,10 @@ footer > span {
   html {
     scroll-behavior: auto;
   }
-  .waves {
+  .waves,
+  .landmark-mesh,
+  .landmark-points,
+  .signal-connection {
     animation: none !important;
   }
 }
@@ -1075,4 +1139,24 @@ footer > span {
   aside nav {
     max-width: 100%;
   }
+}
+
+.filters select:disabled {
+  background: #edf3f1;
+  color: #506d76;
+  opacity: 1;
+  cursor: not-allowed;
+}
+.date-help {
+  grid-column: 1 / -1;
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 0;
+  color: #496b76;
+}
+.field-error {
+  color: #a13930;
+}
+input[aria-invalid="true"] {
+  border-color: #a13930;
 }

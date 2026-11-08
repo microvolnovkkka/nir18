@@ -31,9 +31,9 @@ const directions = [
   {
     id: 5,
     title: "Адаптация поведения роботов",
-    methods: "ROS 2 · IoT-устройства",
+    methods: "ROS 2 · IoT-устройства",
     description:
-      "Исследуем подходы к использованию эмоциональных и жестовых сигналов в человеко-роботном взаимодействии. Рассматриваем архитектуру ROS 2-узла распознавания и сценарии адаптации поведения робота и IoT-инфраструктуры к состоянию человека.",
+      "Исследуем подходы к использованию эмоциональных и жестовых сигналов в человеко-роботном взаимодействии. Рассматриваем архитектуру ROS 2-узла распознавания и сценарии адаптации поведения робота и IoT-инфраструктуры к состоянию человека.",
   },
 ];
 
@@ -43,7 +43,7 @@ const team = [
     initials: "Мушкетов Е. В.",
     role: "Руководитель проекта",
     responsibility: "Координация работы команды.",
-    research: "Адаптация поведения роботов, ROS 2 и IoT-устройства.",
+    research: "Адаптация поведения роботов, ROS 2 и IoT-устройства.",
   },
   {
     name: "Екатерина Кондратьева",
@@ -81,7 +81,7 @@ export function About() {
     <article className="about-page">
       <section className="about-intro" aria-labelledby="about-title">
         <div>
-          <p className="eyebrow">О ПРОЕКТЕ / НИР18</p>
+          <p className="eyebrow">О ПРОЕКТЕ / АФФЕКТ.МЭИ</p>
           <h1 id="about-title">
             Учимся понимать
             <br />
@@ -109,9 +109,9 @@ export function About() {
       </section>
 
       <nav className="about-nav" aria-label="Разделы страницы о проекте">
-        <a href="#purpose">01 / Зачем исследуем</a>
-        <a href="#directions">02 / Направления</a>
-        <a href="#team">03 / Команда</a>
+        <a href="#purpose">Зачем исследуем</a>
+        <a href="#directions">Направления</a>
+        <a href="#team">Команда</a>
       </nav>
 
       <section
@@ -120,7 +120,7 @@ export function About() {
         aria-labelledby="purpose-title"
       >
         <div className="about-section-heading">
-          <p className="eyebrow">01 / ЦЕЛЬ И КОНТЕКСТ</p>
+          <p className="eyebrow">ЦЕЛЬ И КОНТЕКСТ</p>
           <h2 id="purpose-title">
             От невербальных сигналов
             <br />к естественному диалогу.
@@ -155,7 +155,7 @@ export function About() {
               опубликованные статьи можно без входа в аккаунт.
             </p>
             <a className="about-text-link" href="/#materials">
-              Открыть каталог <span aria-hidden="true">↗</span>
+              Открыть каталог <span aria-hidden="true">→</span>
             </a>
           </div>
         </div>
@@ -171,7 +171,7 @@ export function About() {
             <p className="eyebrow">ДАЛЕЕ / ПРАКТИКА</p>
             <p>
               Программные эксперименты по распознаванию эмоций и жестов,
-              разработка ROS 2-узла и практическая адаптация поведения робота.
+              разработка ROS 2-узла и практическая адаптация поведения робота.
             </p>
           </div>
         </div>
@@ -183,14 +183,14 @@ export function About() {
         aria-labelledby="directions-title"
       >
         <div className="about-section-heading">
-          <p className="eyebrow">02 / ИССЛЕДОВАТЕЛЬСКИЕ НАПРАВЛЕНИЯ</p>
+          <p className="eyebrow">ИССЛЕДОВАТЕЛЬСКИЕ НАПРАВЛЕНИЯ</p>
           <h2 id="directions-title">Пять ракурсов одной задачи.</h2>
         </div>
         <ol className="about-directions">
           {directions.map((direction) => (
             <li key={direction.id} className="about-direction">
               <span className="about-number" aria-hidden="true">
-                0{direction.id}
+                {direction.id}
               </span>
               <div>
                 <h3>{direction.title}</h3>
@@ -202,7 +202,7 @@ export function About() {
                   className="about-text-link"
                   href={`/?direction_id=${direction.id}#materials`}
                 >
-                  Материалы направления <span aria-hidden="true">↗</span>
+                  Материалы направления <span aria-hidden="true">→</span>
                   <span className="sr-only">: {direction.title}</span>
                 </a>
               </div>
@@ -213,7 +213,7 @@ export function About() {
 
       <section id="team" className="about-section" aria-labelledby="team-title">
         <div className="about-section-heading">
-          <p className="eyebrow">03 / КОМАНДА ПРОЕКТА</p>
+          <p className="eyebrow">КОМАНДА ПРОЕКТА</p>
           <h2 id="team-title">Пять участников. Общий взгляд.</h2>
         </div>
         <ul className="about-team">
@@ -221,7 +221,6 @@ export function About() {
             <li key={person.initials}>
               <p className="about-role">{person.role}</p>
               <h3>{person.name}</h3>
-              <p className="about-initials">{person.initials}</p>
               <dl>
                 <dt>В проекте</dt>
                 <dd>{person.responsibility}</dd>

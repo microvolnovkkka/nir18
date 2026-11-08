@@ -15,6 +15,8 @@ const Markdown = lazy(() =>
 );
 import "./style.css";
 import { About } from "./About";
+import { ResearchSignal } from "./ResearchSignal";
+import { DateFilters } from "./DateFilters";
 
 const date = (value: string) =>
   new Intl.DateTimeFormat("ru-RU", {
@@ -55,54 +57,12 @@ function useData<T>(url: string) {
   }, [url, version]);
   return { data, error, loading, retry: () => setVersion((v) => v + 1) };
 }
-function Signal() {
-  const [paused, setPaused] = useState(false);
-  return (
-    <div className={"signal " + (paused ? "paused" : "")}>
-      <svg viewBox="0 0 600 360" fill="none" aria-hidden="true">
-        <defs>
-          <linearGradient id="sea">
-            <stop stopColor="#1662ef" />
-            <stop offset=".5" stopColor="#00b7ce" />
-            <stop offset="1" stopColor="#6cffa7" />
-          </linearGradient>
-        </defs>
-        <g className="waves">
-          {Array.from({ length: 22 }, (_, i) => (
-            <path
-              key={i}
-              d={`M -50 ${100 + i * 6} C 90 ${-120 + i * 14}, 200 ${490 - i * 11}, 320 ${200 + i * 3} S 480 ${-40 + i * 13}, 650 ${140 + i * 6}`}
-              stroke="url(#sea)"
-              strokeWidth={i % 5 === 0 ? 2 : 1}
-              opacity={0.35 + i / 40}
-            />
-          ))}
-        </g>
-        <circle cx="315" cy="180" r="67" stroke="#ffffff" strokeWidth=".7" />
-        <circle cx="315" cy="180" r="4" fill="#123d5b" />
-        <path
-          d="M 315 100 V 120 M 315 240 V 260 M 235 180 H 255 M 375 180 H 395"
-          stroke="#123d5b"
-          strokeWidth="1"
-        />
-      </svg>
-      <div className="signal-caption">
-        <span>ЧЕЛОВЕК → СИГНАЛ → ПОНИМАНИЕ</span>
-        <button
-          onClick={() => setPaused(!paused)}
-          aria-label={paused ? "Включить анимацию" : "Остановить анимацию"}
-        >
-          {paused ? "▷" : "Ⅱ"}
-        </button>
-      </div>
-    </div>
-  );
-}
 function Catalog() {
   const initial = new URLSearchParams(location.search);
   const [filters, setFilters] = useState<Record<string, string>>(() =>
     Object.fromEntries(initial),
   );
+  const [filterReset, setFilterReset] = useState(0);
   const [search, setSearch] = useState(initial.get("q") || "");
   const dirs = useData<{ items: Named[] }>("/api/directions");
   const subs = useData<{ items: Subtopic[] }>("/api/subtopics");
@@ -138,31 +98,36 @@ function Catalog() {
             <span className="dot" /> ОТКРЫТЫЙ ИССЛЕДОВАТЕЛЬСКИЙ БЛОГ
           </p>
           <h1>
-            За каждым жестом —<br />
+            За каждым жестом
+            <br />
             <span>целый мир.</span>
           </h1>
           <p className="lead">
-            Исследуем, как машины понимают эмоции,
-            <br className="desktop" /> движения и человека. Делимся тем, что
-            узнали.
+            Исследуем, как алгоритмы распознают мимику, динамические жесты и
+            эмоциональные состояния человека.
           </p>
           <a className="primary" href="#materials">
-            Исследовать материалы <span>↗</span>
+            Исследовать материалы <span aria-hidden="true">↓</span>
           </a>
           <div className="hero-meta">
-            <span>05 направлений</span>
-            <span>01 общая идея</span>
+            <span>
+              <strong>5</strong> направлений
+            </span>
+            <span>
+              <strong>15</strong> подтем
+            </span>
+            <span>
+              <strong>5</strong> участников
+            </span>
           </div>
         </div>
-        <Signal />
+        <ResearchSignal />
       </section>
       <section className="catalog" id="materials">
         <div className="section-heading">
           <div>
             <p className="eyebrow">БИБЛИОТЕКА ИССЛЕДОВАНИЙ</p>
-            <h2>
-              От вопроса к открытию<span className="mint-dot">.</span>
-            </h2>
+            <h2>Каталог материалов НИР</h2>
           </div>
           <span className="count">{listing.data?.total ?? "—"} материалов</span>
         </div>
@@ -177,7 +142,7 @@ function Catalog() {
                   className={!filters.direction_id ? "selected" : ""}
                   onClick={() => change({ direction_id: "", subtopic_id: "" })}
                 >
-                  <span>00</span>Все исследования
+                  <span aria-hidden="true">∷</span>Все исследования
                 </button>
                 {dirs.data?.items.map((d) => (
                   <button
@@ -189,7 +154,7 @@ function Catalog() {
                       change({ direction_id: String(d.id), subtopic_id: "" })
                     }
                   >
-                    <span>0{d.id}</span>
+                    <span aria-hidden="true">{d.id}</span>
                     {d.name}
                   </button>
                 ))}
@@ -213,13 +178,19 @@ function Catalog() {
                 placeholder="Что будем исследовать?"
                 maxLength={200}
               />
-              <button type="submit">Найти ↗</button>
+              <button type="submit">Найти</button>
             </form>
             <div className="filters">
               <label>
                 Подтема
                 <select
                   value={filters.subtopic_id || ""}
+                  disabled={!filters.direction_id || !subs.data}
+                  title={
+                    !filters.direction_id
+                      ? "Сначала выберите направление"
+                      : "Подтема выбранного направления"
+                  }
                   onChange={(e) => {
                     const s = subs.data?.items.find(
                       (s) => String(s.id) === e.target.value,
@@ -230,12 +201,14 @@ function Catalog() {
                     });
                   }}
                 >
-                  <option value="">Все подтемы</option>
+                  <option value="">
+                    {filters.direction_id
+                      ? "Все подтемы"
+                      : "Выберите направление"}
+                  </option>
                   {subs.data?.items
                     .filter(
-                      (s) =>
-                        !filters.direction_id ||
-                        String(s.direction_id) === filters.direction_id,
+                      (s) => String(s.direction_id) === filters.direction_id,
                     )
                     .map((s) => (
                       <option value={s.id} key={s.id}>
@@ -258,22 +231,7 @@ function Catalog() {
                   ))}
                 </select>
               </label>
-              <label>
-                Обновлено с
-                <input
-                  type="date"
-                  value={filters.date_from || ""}
-                  onChange={(e) => change({ date_from: e.target.value })}
-                />
-              </label>
-              <label>
-                Обновлено по
-                <input
-                  type="date"
-                  value={filters.date_to || ""}
-                  onChange={(e) => change({ date_to: e.target.value })}
-                />
-              </label>
+              <DateFilters key={filterReset} value={filters} onApply={change} />
             </div>
             {(subs.error || authors.error) && (
               <ErrorNotice
@@ -290,6 +248,7 @@ function Catalog() {
                 className="text-button"
                 onClick={() => {
                   setFilters({});
+                  setFilterReset((version) => version + 1);
                   setSearch("");
                 }}
               >
@@ -311,7 +270,7 @@ function Catalog() {
                     key={p.id}
                   >
                     <div>
-                      <span className="tag">Направление 0{p.direction.id}</span>
+                      <span className="tag">Направление {p.direction.id}</span>
                       <h3>{p.title}</h3>
                       <p>{p.subtopic.name}</p>
                       <small>
@@ -319,17 +278,19 @@ function Catalog() {
                         {date(p.updated_at)}
                       </small>
                     </div>
-                    <span className="row-arrow">↗</span>
+                    <span className="row-arrow">→</span>
                   </a>
                 ))}
               </div>
             ) : (
               <div className="empty">
-                <span className="empty-icon">↗</span>
+                <span className="empty-icon" aria-hidden="true">
+                  ≡
+                </span>
                 <h3>
                   {Object.values(filters).some(Boolean)
                     ? "Пока ничего не нашлось"
-                    : "Здесь начнутся открытия"}
+                    : "Материалы готовятся к публикации"}
                 </h3>
                 <p>
                   {Object.values(filters).some(Boolean)
@@ -484,7 +445,7 @@ function Workspace({ session }: { session: Session | null | undefined }) {
         className="primary"
         href={"/?author_id=" + session.user.id + "#materials"}
       >
-        Мои материалы ↗
+        Мои материалы →
       </a>
     </section>
   );
@@ -525,9 +486,8 @@ function App() {
         К содержимому
       </a>
       <header>
-        <a href="/" className="brand" aria-label="НИР18 — главная">
-          нир<span>18</span>
-          <i>↗</i>
+        <a href="/" className="brand" aria-label="Аффект.МЭИ — главная">
+          Аффект<span>.МЭИ</span>
         </a>
         <nav aria-label="Основная навигация">
           <a href="/" aria-current={path === "/" ? "page" : undefined}>
@@ -543,14 +503,14 @@ function App() {
         <div className="account">
           {session ? (
             <>
-              <a href="/workspace">Мой раздел ↗</a>
+              <a href="/workspace">Мой раздел →</a>
               <button disabled={busy} onClick={logout}>
                 Выйти
               </button>
             </>
           ) : (
             <a className="login-link" href="/login">
-              Вход <span>↗</span>
+              Вход
             </a>
           )}
         </div>
@@ -576,7 +536,7 @@ function App() {
       </main>
       <footer>
         <a className="brand" href="/">
-          нир<span>18</span>
+          Аффект<span>.МЭИ</span>
         </a>
         <p>Изучаем человека. Создаём понимание.</p>
         <span>НАУЧНО-ИССЛЕДОВАТЕЛЬСКАЯ РАБОТА · 2026</span>

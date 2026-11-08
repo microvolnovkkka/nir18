@@ -12,7 +12,7 @@
     "typecheck": "tsc --noEmit",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "test": "node scripts/check-markdown.mjs"
+    "test": "node scripts/check-markdown.mjs && node scripts/check-filters.mjs"
   },
   "dependencies": {
     "katex": "^0.19.1",
