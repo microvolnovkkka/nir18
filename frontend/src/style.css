@@ -109,13 +109,6 @@ header a:hover {
   background: none;
   color: #506b75;
 }
-.login-link {
-  border: 1px solid #a9c5c8;
-  padding: 12px 20px;
-  border-radius: 28px;
-  display: flex;
-  gap: 35px;
-}
 .hero {
   padding: 70px 5% 60px;
   display: grid;
@@ -1171,10 +1164,6 @@ footer > span {
   .account {
     margin-left: auto;
     font-size: 12px;
-  }
-  .login-link {
-    padding: 10px 15px;
-    gap: 20px;
   }
   .hero {
     grid-template-columns: 1fr;

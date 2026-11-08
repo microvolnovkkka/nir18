@@ -500,20 +500,14 @@ function App() {
             О проекте
           </a>
         </nav>
-        <div className="account">
-          {session ? (
-            <>
-              <a href="/workspace">Мой раздел →</a>
-              <button disabled={busy} onClick={logout}>
-                Выйти
-              </button>
-            </>
-          ) : (
-            <a className="login-link" href="/login">
-              Вход
-            </a>
-          )}
-        </div>
+        {session && (
+          <div className="account">
+            <a href="/workspace">Мой раздел →</a>
+            <button disabled={busy} onClick={logout}>
+              Выйти
+            </button>
+          </div>
+        )}
       </header>
       <main id="main">
         {error && <ErrorNotice message={error} />}{" "}
