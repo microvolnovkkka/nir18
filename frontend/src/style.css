@@ -227,37 +227,55 @@ h3 {
   margin: 0 8px;
   color: #087e85;
 }
+.landmarks-warm {
+  --mesh: #ce7527;
+  --point: #ffc184;
+  --edge: #ad5e1c;
+}
+.landmarks-lime {
+  --mesh: #8b9c17;
+  --point: #e1f64f;
+  --edge: #71820e;
+}
 .landmark-mesh {
-  animation: mesh-appear 2.4s ease-out both;
+  stroke: var(--mesh);
+  stroke-width: 1.65;
 }
 .landmark-points {
-  animation: points-appear 3.6s ease-out both;
+  fill: var(--point);
+  stroke: var(--edge);
+  stroke-width: 1.2;
+  animation: signal-breathe 8s ease-in-out infinite;
 }
-.signal-connection {
-  animation: mesh-appear 4.5s ease-out both;
+.signal-flow {
+  stroke: #dfff52;
+  stroke-width: 2.5;
+  stroke-dasharray: 16 84;
+  animation: signal-travel 9s linear infinite;
+  opacity: 0.9;
+  filter: drop-shadow(0 0 2px #b9e63a);
 }
-@keyframes mesh-appear {
+.landmarks-lime .signal-flow {
+  stroke: #f6ae57;
+  animation-delay: -3s;
+}
+.landmarks-lime .landmark-points {
+  animation-delay: -2s;
+}
+@keyframes signal-travel {
   from {
-    opacity: 0;
-    stroke-dasharray: 2 12;
+    stroke-dashoffset: 100;
   }
   to {
-    opacity: 1;
-    stroke-dasharray: 0;
+    stroke-dashoffset: 0;
   }
 }
-@keyframes points-appear {
+@keyframes signal-breathe {
   0%,
-  25% {
-    opacity: 0;
-  }
-  65% {
-    opacity: 1;
-  }
-  80% {
-    opacity: 0.45;
-  }
   100% {
+    opacity: 0.72;
+  }
+  50% {
     opacity: 1;
   }
 }
@@ -1115,8 +1133,11 @@ footer > span {
   .waves,
   .landmark-mesh,
   .landmark-points,
-  .signal-connection {
+  .signal-flow {
     animation: none !important;
+  }
+  .signal-flow {
+    display: none;
   }
 }
 
