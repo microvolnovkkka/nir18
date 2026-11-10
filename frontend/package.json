@@ -15,8 +15,10 @@
     "test": "node scripts/check-markdown.mjs && node scripts/check-filters.mjs"
   },
   "dependencies": {
+    "date-fns": "^4.4.0",
     "katex": "^0.19.1",
     "react": "19.3.1",
+    "react-day-picker": "^9.14.0",
     "react-dom": "19.3.1",
     "react-markdown": "^10.1.0",
     "rehype-katex": "^7.0.1",

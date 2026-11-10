@@ -16,7 +16,7 @@ const Markdown = lazy(() =>
 import "./style.css";
 import { About } from "./About";
 import { ResearchSignal } from "./ResearchSignal";
-import { DateFilters } from "./DateFilters";
+import { catalogFilters, DateFilters } from "./DateFilters";
 
 const date = (value: string) =>
   new Intl.DateTimeFormat("ru-RU", {
@@ -60,7 +60,7 @@ function useData<T>(url: string) {
 function Catalog() {
   const initial = new URLSearchParams(location.search);
   const [filters, setFilters] = useState<Record<string, string>>(() =>
-    Object.fromEntries(initial),
+    catalogFilters(initial),
   );
   const [filterReset, setFilterReset] = useState(0);
   const [search, setSearch] = useState(initial.get("q") || "");
@@ -375,7 +375,11 @@ function Login({ onLogin }: { onLogin: (s: Session) => void }) {
       onLogin(session);
       location.assign("/workspace");
     } catch (e) {
-      setError((e as Error).message);
+      setError(
+        e instanceof APIError && e.status === 422
+          ? "Неверный логин или пароль."
+          : (e as Error).message,
+      );
     } finally {
       setBusy(false);
     }
@@ -387,14 +391,21 @@ function Login({ onLogin }: { onLogin: (s: Session) => void }) {
         С возвращением<span className="mint-dot">.</span>
       </h1>
       <p>Войдите в свой исследовательский аккаунт.</p>
-      <form onSubmit={submit}>
+      <form onSubmit={submit} onInput={() => setError("")}>
         <label>
           Логин
-          <input name="login" required autoComplete="username" maxLength={32} />
+          <input
+            disabled={busy}
+            name="login"
+            required
+            autoComplete="username"
+            maxLength={32}
+          />
         </label>
         <label>
           Пароль
           <input
+            disabled={busy}
             name="password"
             type={visible ? "text" : "password"}
             required

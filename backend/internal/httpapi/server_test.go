@@ -141,6 +141,8 @@ func TestAPIIntegration(t *testing.T) {
 	check(request("GET", "/api/subtopics?direction_id=999", "", nil, nil, nil), 422)
 	check(request("GET", "/api/publications?page=1&page=2", "", nil, nil, nil), 400)
 	check(request("GET", "/api/publications?direction_id=1&subtopic_id=201", "", nil, nil, nil), 422)
+	check(request("GET", "/api/publications?date_from=5812-03-12", "", nil, nil, nil), 422)
+	check(request("GET", "/api/publications?date_to=2026-09-30", "", nil, nil, nil), 422)
 	check(request("GET", "/api/publications?date_from=2026-11-08&date_to=2026-11-07", "", nil, nil, nil), 422)
 	body := `{"title":"Тест 100%_","subtopic_id":101,"markdown":"Наука"}`
 	key := uuid()

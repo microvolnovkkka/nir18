@@ -211,25 +211,11 @@ h3 {
   width: 100%;
   overflow: visible;
 }
-.research-signal figcaption {
-  text-align: center;
-  color: #426774;
-  font-size: 13px;
-  line-height: 1.8;
+.landmarks-face {
+  --mesh: url(#mesh-face);
 }
-.research-signal figcaption span {
-  margin: 0 8px;
-  color: #087e85;
-}
-.landmarks-warm {
-  --mesh: #ce7527;
-  --point: #ffc184;
-  --edge: #ad5e1c;
-}
-.landmarks-lime {
-  --mesh: #8b9c17;
-  --point: #e1f64f;
-  --edge: #71820e;
+.landmarks-hand {
+  --mesh: url(#mesh-hand);
 }
 .signal-scene {
   transform-box: fill-box;
@@ -246,26 +232,15 @@ h3 {
   transform-origin: 50% 100%;
   animation: signal-wave var(--signal-cycle) ease-in-out infinite;
 }
-.signal-aura,
-.signal-orbit {
-  transform-box: fill-box;
-  transform-origin: center;
-}
-.signal-aura {
-  animation: signal-aura 7s ease-in-out infinite;
-}
-.signal-orbit {
-  animation: signal-orbit 28s ease-in-out infinite;
-}
 .signal-labels {
   animation: signal-labels var(--signal-cycle) ease-in-out infinite;
 }
-.landmarks-lime {
+.landmarks-hand {
   --phase: 0.45s;
 }
 .landmark-mesh {
   stroke: var(--mesh);
-  stroke-width: 1.65;
+  stroke-width: 1.25;
 }
 .landmark-mesh polyline {
   stroke-dasharray: 100;
@@ -273,9 +248,7 @@ h3 {
   animation-delay: calc(var(--order) * 55ms + var(--phase, 0s));
 }
 .landmark-points {
-  fill: var(--point);
-  stroke: var(--edge);
-  stroke-width: 1.2;
+  stroke: none;
 }
 .landmark-points circle {
   transform-box: fill-box;
@@ -290,8 +263,8 @@ h3 {
   animation: signal-travel var(--signal-cycle) linear infinite;
   filter: drop-shadow(0 0 2px #b9e63a);
 }
-.landmarks-lime .signal-flow {
-  stroke: #f6ae57;
+.landmarks-hand .signal-flow {
+  stroke: #b4ef63;
 }
 .research-signal[data-running="false"] * {
   animation-play-state: paused !important;
@@ -435,26 +408,7 @@ h3 {
     transform: translateX(-8px);
   }
 }
-@keyframes signal-aura {
-  0%,
-  100% {
-    opacity: 0.65;
-    transform: scale(0.93);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.05);
-  }
-}
-@keyframes signal-orbit {
-  0%,
-  100% {
-    transform: rotate(-10deg);
-  }
-  50% {
-    transform: rotate(16deg);
-  }
-}
+
 .signal {
   position: relative;
   min-width: 0;
@@ -1348,7 +1302,7 @@ footer > span {
   cursor: not-allowed;
 }
 .date-help {
-  grid-column: 1 / -1;
+  grid-column: -3 / -1;
   font-size: 12px;
   line-height: 1.6;
   margin: 0;
@@ -1359,4 +1313,53 @@ footer > span {
 }
 input[aria-invalid="true"] {
   border-color: #a13930;
+}
+
+.date-field {
+  min-width: 0;
+}
+.date-field > div {
+  position: relative;
+  margin-top: 8px;
+}
+.date-field input {
+  padding: 11px 30px 11px 7px;
+  font-variant-numeric: tabular-nums;
+}
+.date-field button {
+  position: absolute;
+  right: 1px;
+  top: 1px;
+  bottom: 1px;
+  border: 0;
+  padding: 0 5px;
+  background: transparent;
+  color: #306777;
+}
+.date-dialog {
+  max-width: calc(100vw - 24px);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  color: var(--ink);
+}
+.date-dialog::backdrop {
+  background: rgb(22 53 63 / 30%);
+}
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.calendar-header button {
+  border: 0;
+  background: transparent;
+  font-size: 24px;
+  color: inherit;
+}
+.date-dialog .rdp-root {
+  --rdp-accent-color: #08728b;
+  --rdp-day-width: min(10.5vw, 42px);
+  --rdp-day_button-width: min(10vw, 40px);
 }

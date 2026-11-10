@@ -211,12 +211,17 @@ func (s *Server) list(w http.ResponseWriter, r *http.Request) error {
 		add("p.author_id=$%d", id)
 	}
 	loc, _ := time.LoadLocation("Europe/Moscow")
+	firstDay := time.Date(2026, time.October, 1, 0, 0, 0, 0, loc)
+	now := time.Now().In(loc)
 	var from, to time.Time
 	for _, key := range []string{"date_from", "date_to"} {
 		if q.Has(key) {
 			v, e := time.ParseInLocation("2006-01-02", q.Get(key), loc)
 			if e != nil {
 				return fail(400, "bad_request")
+			}
+			if v.Before(firstDay) || v.After(now) {
+				return fail(422, "validation_failed")
 			}
 			if key == "date_from" {
 				from = v

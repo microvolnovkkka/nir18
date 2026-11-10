@@ -6,9 +6,8 @@ const server = await createServer({
 });
 const originalFetch = globalThis.fetch;
 try {
-  const { dateError, dateRangeError } = await server.ssrLoadModule(
-    "/src/DateFilters.tsx",
-  );
+  const { dateError, dateRangeError, catalogFilters } =
+    await server.ssrLoadModule("/src/DateFilters.tsx");
   for (const partial of [
     "0001-11-01",
     "0020-11-01",
@@ -16,11 +15,19 @@ try {
     "2026-11",
     "2026-02-30",
     "2025-02-29",
+    "2026-09-30",
+    "5812-03-12",
+    "2026-11-11",
   ]) {
-    assert(dateError(partial), `Недопустимая дата: ${partial}`);
+    assert(dateError(partial, "2026-11-10"), `Недопустимая дата: ${partial}`);
   }
-  for (const valid of ["", "2026-11-01", "2024-02-29"])
-    assert.equal(dateError(valid), "");
+  for (const valid of ["", "2026-10-01", "2026-11-10"])
+    assert.equal(dateError(valid, "2026-11-10"), "");
+  assert.equal(dateError("2028-02-29", "2028-03-01"), "");
+  assert.deepEqual(
+    catalogFilters(new URLSearchParams("q=abc&date_from=5812-03-12&page=8")),
+    { q: "abc" },
+  );
   assert(dateRangeError({ date_from: "2026-11-08", date_to: "2026-11-01" }));
   for (const range of [
     { date_from: "2026-11-01", date_to: "2026-11-01" },
