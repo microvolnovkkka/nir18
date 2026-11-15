@@ -23,7 +23,8 @@ try {
       safe.includes('src="/media/'),
   );
   assert(safe.includes('rel="noopener noreferrer"'));
-  const { imageURLs } = await server.ssrLoadModule("/src/editorMedia.ts");
+  const { imageURLs, invalidImage, selectedImageAlt } =
+    await server.ssrLoadModule("/src/editorMedia.ts");
   const url = "/media/30000000-0000-4000-8000-000000000001";
   const withImages = [
     "![Схема](" + url + ")",
@@ -37,6 +38,21 @@ try {
   assert.deepEqual(imageURLs("![Внешняя](https://example.org/file.png)"), [
     "https://example.org/file.png",
   ]);
+  const tag = "![Схема (рис. 1)](fusion-pipeline.png)";
+  const source = "Пример в коде: `" + tag + "`\n\n" + tag;
+  const start = source.lastIndexOf(tag);
+  assert.deepEqual(invalidImage(source), {
+    url: "fusion-pipeline.png",
+    alt: "Схема (рис. 1)",
+    start,
+    end: start + tag.length,
+  });
+  assert.equal(
+    selectedImageAlt(source, start, source.length),
+    "Схема (рис. 1)",
+  );
+  assert.equal(selectedImageAlt(source, start + 1, source.length), "");
+  assert.equal(invalidImage(withImages), undefined);
   const formula = render("$\\href{javascript:alert(1)}{x}$");
   assert(!formula.includes('href="javascript:'));
   console.log(

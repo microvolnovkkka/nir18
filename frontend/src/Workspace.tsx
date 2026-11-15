@@ -15,6 +15,7 @@ export function Confirm({
   cancel,
   submit,
   children,
+  cancelLabel = "Отмена",
 }: {
   title: string;
   action: string;
@@ -22,6 +23,7 @@ export function Confirm({
   cancel: () => void;
   submit: () => void;
   children: ReactNode;
+  cancelLabel?: string;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
@@ -41,7 +43,7 @@ export function Confirm({
       {children}
       <div className="author-actions">
         <button autoFocus disabled={busy} onClick={cancel}>
-          Отмена
+          {cancelLabel}
         </button>
         <button className="primary" disabled={busy} onClick={submit}>
           {busy ? "Отправляем…" : action}
@@ -142,7 +144,9 @@ export function Workspace({ session }: { session: Session }) {
   );
   return (
     <section className="work-page">
-      <p className="eyebrow">РАБОЧИЙ РАЗДЕЛ · {session.user.display_name}</p>
+      <p className="workspace-byline">
+        Рабочий раздел · {session.user.display_name}
+      </p>
       <div className="work-heading">
         <h1>Мои публикации</h1>
         <a className="primary" href="/workspace/new">
