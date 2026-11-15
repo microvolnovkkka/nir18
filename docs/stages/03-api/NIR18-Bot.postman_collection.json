@@ -1,0 +1,300 @@
+{
+  "info": {
+    "name": "NIR18 · API бота",
+    "description": "Запускайте запросы по порядку. В окружении Postman задайте login и password пользователя локального сайта. Запрос входа сохранит csrf_token в это окружение, а cookie nir_session попадёт в cookie jar. expected_mode можно переопределить значением model.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "expected_mode",
+      "value": "stub"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 — Вход участника",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.variables.set('login_body', JSON.stringify({login: pm.variables.get('login'), password: pm.variables.get('password')}));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 и csrf_token', function () {",
+              "    pm.response.to.have.status(200);",
+              "    const body = pm.response.json();",
+              "    pm.expect(body.csrf_token).to.be.a('string').and.not.empty;",
+              "    pm.environment.set('csrf_token', body.csrf_token);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Origin",
+            "value": "{{base_url}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{{login_body}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/auth/login"
+      }
+    },
+    {
+      "name": "02 — Черновик по заметкам",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.variables.set('request_id', pm.variables.replaceIn('{{$guid}}'));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 report', function () {",
+              "    pm.response.to.have.status(200);",
+              "    const body = pm.response.json();",
+              "    pm.expect(body.request_id).to.equal(pm.response.headers.get('X-Request-ID'));",
+              "    pm.expect(body.request_id).to.equal(pm.variables.get('request_id'));",
+              "    pm.expect(body.contract_version).to.equal('1.0');",
+              "    pm.expect(body.mode).to.equal(pm.variables.get('expected_mode'));",
+              "    pm.expect(body.kind).to.equal('report');",
+              "    pm.expect(body.markdown).to.be.a('string').and.not.empty;",
+              "    pm.expect(body.warnings).to.be.an('array');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Origin",
+            "value": "{{base_url}}"
+          },
+          {
+            "key": "X-CSRF-Token",
+            "value": "{{csrf_token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"contract_version\": \"1.0\",\n  \"request_id\": \"{{request_id}}\",\n  \"topic\": {\n    \"subtopic_id\": 101,\n    \"title\": \"Категориальные модели эмоций\"\n  },\n  \"message\": \"Составь короткий обзор по заметкам. Категории эмоций описывают дискретные состояния. Экспериментов команда не проводила. Источники не подобраны.\",\n  \"history\": [],\n  \"current_markdown\": \"\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/bot/respond"
+      }
+    },
+    {
+      "name": "03 — Неверный CSRF-токен",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.variables.set('request_id', pm.variables.replaceIn('{{$guid}}'));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('403 csrf_failed', function () {",
+              "    pm.response.to.have.status(403);",
+              "    const body = pm.response.json();",
+              "    pm.expect(body.request_id).to.equal(pm.response.headers.get('X-Request-ID'));",
+              "    pm.expect(body.error.code).to.equal('csrf_failed');",
+              "    pm.expect(body.error.fields).to.be.an('object');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Origin",
+            "value": "{{base_url}}"
+          },
+          {
+            "key": "X-CSRF-Token",
+            "value": "invalid-token"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"contract_version\": \"1.0\",\n  \"request_id\": \"{{request_id}}\",\n  \"topic\": {\n    \"subtopic_id\": 101,\n    \"title\": \"Категориальные модели эмоций\"\n  },\n  \"message\": \"Составь короткий обзор по заметкам. Категории эмоций описывают дискретные состояния. Экспериментов команда не проводила. Источники не подобраны.\",\n  \"history\": [],\n  \"current_markdown\": \"\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/bot/respond"
+      }
+    },
+    {
+      "name": "04 — Неподдерживаемая версия контракта",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.variables.set('request_id', pm.variables.replaceIn('{{$guid}}'));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('422 contract_version_unsupported', function () {",
+              "    pm.response.to.have.status(422);",
+              "    const body = pm.response.json();",
+              "    pm.expect(body.request_id).to.equal(pm.response.headers.get('X-Request-ID'));",
+              "    pm.expect(body.error.code).to.equal('contract_version_unsupported');",
+              "    pm.expect(body.error.fields).to.be.an('object');",
+              "    pm.expect(body.request_id).to.equal(pm.variables.get('request_id'));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Origin",
+            "value": "{{base_url}}"
+          },
+          {
+            "key": "X-CSRF-Token",
+            "value": "{{csrf_token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"contract_version\": \"2.0\",\n  \"request_id\": \"{{request_id}}\",\n  \"topic\": {\n    \"subtopic_id\": 101,\n    \"title\": \"Категориальные модели эмоций\"\n  },\n  \"message\": \"Составь короткий обзор по заметкам. Категории эмоций описывают дискретные состояния. Экспериментов команда не проводила. Источники не подобраны.\",\n  \"history\": [],\n  \"current_markdown\": \"\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/bot/respond"
+      }
+    },
+    {
+      "name": "05 — Изображение отсутствует",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.variables.set('request_id', pm.variables.replaceIn('{{$guid}}'));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('422 media_context_invalid', function () {",
+              "    pm.response.to.have.status(422);",
+              "    const body = pm.response.json();",
+              "    pm.expect(body.request_id).to.equal(pm.response.headers.get('X-Request-ID'));",
+              "    pm.expect(body.error.code).to.equal('media_context_invalid');",
+              "    pm.expect(body.error.fields).to.be.an('object');",
+              "    pm.expect(body.request_id).to.equal(pm.variables.get('request_id'));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Origin",
+            "value": "{{base_url}}"
+          },
+          {
+            "key": "X-CSRF-Token",
+            "value": "{{csrf_token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"contract_version\": \"1.0\",\n  \"request_id\": \"{{request_id}}\",\n  \"topic\": {\n    \"subtopic_id\": 101,\n    \"title\": \"Категориальные модели эмоций\"\n  },\n  \"message\": \"Составь короткий обзор по заметкам. Категории эмоций описывают дискретные состояния. Экспериментов команда не проводила. Источники не подобраны.\",\n  \"history\": [],\n  \"current_markdown\": \"![Нет в базе](/media/30000000-0000-4000-8000-000000000001)\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{base_url}}/api/bot/respond"
+      }
+    }
+  ]
+}
