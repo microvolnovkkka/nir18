@@ -8,8 +8,12 @@ DECLARE
     article uuid := gen_random_uuid();
     image_id uuid := gen_random_uuid();
 BEGIN
-    IF (SELECT count(*) FROM users) <> 5 OR (SELECT count(*) FROM users WHERE is_active OR password_hash IS NOT NULL) <> 0 THEN
-        RAISE EXCEPTION 'Expected five inactive accounts without passwords on foundation';
+    -- Участники могут уже установить пароли через CLI.
+    IF (SELECT count(*) FROM users) <> 5 OR EXISTS (
+        SELECT 1 FROM users
+        WHERE login NOT IN ('fmavrin', 'akomarov', 'ekondrateva', 'avoropaev', 'emushketov')
+    ) THEN
+        RAISE EXCEPTION 'Expected the five seeded team accounts';
     END IF;
     IF (SELECT count(*) FROM directions) <> 5 OR (SELECT count(*) FROM subtopics) <> 15 THEN
         RAISE EXCEPTION 'Catalog seed mismatch';

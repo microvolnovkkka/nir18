@@ -1,4 +1,11 @@
-import { useEffect, useState, lazy, Suspense, type FormEvent } from "react";
+import {
+  useLayoutEffect,
+  useEffect,
+  useState,
+  lazy,
+  Suspense,
+  type FormEvent,
+} from "react";
 import { createRoot } from "react-dom/client";
 import {
   api,
@@ -18,45 +25,17 @@ import { About } from "./About";
 import { ResearchSignal } from "./ResearchSignal";
 import { catalogFilters, DateFilters } from "./DateFilters";
 
-const date = (value: string) =>
-  new Intl.DateTimeFormat("ru-RU", {
-    dateStyle: "long",
-    timeZone: "Europe/Moscow",
-  }).format(new Date(value));
-function ErrorNotice({
-  message,
-  retry,
-}: {
-  message: string;
-  retry?: () => void;
-}) {
-  return (
-    <div className="notice" role="alert">
-      {message} {retry && <button onClick={retry}>Повторить</button>}
-    </div>
-  );
-}
-function useData<T>(url: string) {
-  const [data, setData] = useState<T>();
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [version, setVersion] = useState(0);
-  useEffect(() => {
-    const controller = new AbortController();
-    setLoading(true);
-    setError("");
-    api<T>(url, { signal: controller.signal })
-      .then(setData)
-      .catch((e) => {
-        if (!controller.signal.aborted) setError(e.message);
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false);
-      });
-    return () => controller.abort();
-  }, [url, version]);
-  return { data, error, loading, retry: () => setVersion((v) => v + 1) };
-}
+import {
+  date,
+  ErrorNotice,
+  openAfterWrite,
+  WriteNotice,
+  useData,
+} from "./shared";
+import { DeletePublication, Workspace } from "./Workspace";
+const EditorRoute = lazy(() => import("./Editor"));
+const editPath =
+  /^\/workspace\/publications\/([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})\/edit$/;
 function Catalog() {
   const initial = new URLSearchParams(location.search);
   const [filters, setFilters] = useState<Record<string, string>>(() =>
@@ -81,9 +60,11 @@ function Catalog() {
       location.pathname + (q.size ? "?" + q : "") + location.hash,
     );
   }, [filters]);
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (location.hash === "#materials") {
-      document.getElementById("materials")?.scrollIntoView();
+      document
+        .getElementById("materials")
+        ?.scrollIntoView({ behavior: "instant" });
     }
   }, []);
   const submit = (e: FormEvent) => {
@@ -106,7 +87,21 @@ function Catalog() {
             Исследуем, как алгоритмы распознают мимику, динамические жесты и
             эмоциональные состояния человека.
           </p>
-          <a className="primary" href="#materials">
+          <a
+            className="primary"
+            href="#materials"
+            onClick={(e) => {
+              if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+              e.preventDefault();
+              if (location.hash !== "#materials")
+                history.pushState(null, "", "#materials");
+              document.getElementById("materials")?.scrollIntoView({
+                behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
+                  ? "instant"
+                  : "smooth",
+              });
+            }}
+          >
             Исследовать материалы <span aria-hidden="true">↓</span>
           </a>
           <div className="hero-meta">
@@ -331,7 +326,7 @@ function Catalog() {
     </>
   );
 }
-function Article({ id }: { id: string }) {
+function Article({ id, session }: { id: string; session?: Session | null }) {
   const { data, error, loading, retry } = useData<Publication>(
     "/api/publications/" + encodeURIComponent(id),
   );
@@ -340,13 +335,23 @@ function Article({ id }: { id: string }) {
   return (
     data && (
       <article className="article">
-        <a href="/">← Все исследования</a>
+        <a href="/#materials">← Все исследования</a>
         <p className="eyebrow">{data.direction.name}</p>
         <h1>{data.title}</h1>
         <p className="byline">
           {data.author.display_name} · Обновлено {date(data.updated_at)}
         </p>
         <p className="subtopic">{data.subtopic.name}</p>
+        {session?.user.id === data.author.id && (
+          <div className="author-actions">
+            <a href={`/workspace/publications/${id}/edit`}>Редактировать</a>
+            <DeletePublication
+              item={data}
+              session={session}
+              done={() => openAfterWrite("/workspace", "Статья удалена.")}
+            />
+          </div>
+        )}
         <Suspense fallback={<p>Подготавливаем статью…</p>}>
           <Markdown text={data.markdown || ""} />
         </Suspense>
@@ -373,7 +378,12 @@ function Login({ onLogin }: { onLogin: (s: Session) => void }) {
         }),
       });
       onLogin(session);
-      location.assign("/workspace");
+      const target = new URLSearchParams(location.search).get("returnTo") || "";
+      location.assign(
+        target === "/workspace/new" || editPath.test(target)
+          ? target
+          : "/workspace",
+      );
     } catch (e) {
       setError(
         e instanceof APIError && e.status === 422
@@ -433,34 +443,6 @@ function Login({ onLogin }: { onLogin: (s: Session) => void }) {
     </section>
   );
 }
-function Workspace({ session }: { session: Session | null | undefined }) {
-  if (session === undefined) return <p className="empty">Проверяем вход…</p>;
-  if (!session)
-    return (
-      <section className="empty">
-        <h1>Войдите в аккаунт</h1>
-        <a className="primary" href="/login">
-          Перейти ко входу →
-        </a>
-      </section>
-    );
-  return (
-    <section className="article">
-      <p className="eyebrow">РАБОЧИЙ РАЗДЕЛ</p>
-      <h1>Здравствуйте, {session.user.display_name.split(" ")[0]}.</h1>
-      <p>
-        Ваш аккаунт подключён. Редактор публикаций и чат появятся на следующем
-        этапе.
-      </p>
-      <a
-        className="primary"
-        href={"/?author_id=" + session.user.id + "#materials"}
-      >
-        Мои материалы →
-      </a>
-    </section>
-  );
-}
 function App() {
   const [session, setSession] = useState<Session | null>();
   const [error, setError] = useState("");
@@ -474,6 +456,10 @@ function App() {
       });
   }, []);
   async function logout() {
+    if (
+      !window.dispatchEvent(new Event("workspace-leave", { cancelable: true }))
+    )
+      return;
     if (!session) return;
     setBusy(true);
     try {
@@ -481,6 +467,7 @@ function App() {
         method: "POST",
         headers: { "X-CSRF-Token": session.csrf_token },
       });
+      window.dispatchEvent(new Event("workspace-logout-complete"));
       setSession(null);
       location.assign("/");
     } catch (e) {
@@ -490,6 +477,7 @@ function App() {
     }
   }
   const path = location.pathname;
+  const edit = editPath.exec(path);
   const article = /^\/publications\/([^/]+)$/.exec(path);
   return (
     <>
@@ -521,15 +509,34 @@ function App() {
         )}
       </header>
       <main id="main">
-        {error && <ErrorNotice message={error} />}{" "}
+        {error && <ErrorNotice message={error} />}
+        <WriteNotice />
         {article ? (
-          <Article id={article[1]} />
+          <Article id={article[1]} session={session} />
         ) : path === "/" ? (
           <Catalog />
         ) : path === "/login" ? (
           <Login onLogin={setSession} />
-        ) : path === "/workspace" ? (
-          <Workspace session={session} />
+        ) : path === "/workspace" || path === "/workspace/new" || edit ? (
+          session === undefined ? (
+            <p className="empty">Проверяем вход…</p>
+          ) : !session ? (
+            <section className="empty">
+              <h1>Войдите в аккаунт</h1>
+              <a
+                className="primary"
+                href={"/login?returnTo=" + encodeURIComponent(path)}
+              >
+                Перейти ко входу →
+              </a>
+            </section>
+          ) : path === "/workspace" ? (
+            <Workspace session={session} />
+          ) : (
+            <Suspense fallback={<p className="empty">Открываем редактор…</p>}>
+              <EditorRoute session={session} id={edit?.[1]} />
+            </Suspense>
+          )
         ) : path === "/about" ? (
           <About />
         ) : (

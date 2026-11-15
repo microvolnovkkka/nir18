@@ -27,12 +27,22 @@ export class APIError extends Error {
   constructor(
     public status: number,
     message: string,
+    public code?: string,
   ) {
     super(message);
   }
 }
 export function errorMessage(status: number, code?: string): string {
   const messages: Record<string, string> = {
+    invalid_image: "Файл повреждён или изображение превышает 20 мегапикселей.",
+    payload_too_large:
+      "Файл слишком велик. Максимальный размер изображения — 5 МиБ.",
+    unsupported_media_type: "Поддерживаются изображения PNG, JPEG и WebP.",
+    media_unavailable:
+      "Срок хранения изображения истёк. Загрузите файл снова и замените ссылку.",
+    upload_in_progress:
+      "Файл ещё обрабатывается. Повторите загрузку через несколько секунд.",
+    storage_unavailable: "Хранилище изображений временно недоступно.",
     bad_request: "Проверьте заполнение полей и параметры запроса.",
     validation_failed: "Проверьте заполнение полей.",
     invalid_credentials: "Неверный логин или пароль.",
@@ -59,12 +69,18 @@ export async function api<T>(
   const response = await fetch(path, {
     ...options,
     credentials: "same-origin",
+  }).catch((error: unknown) => {
+    if (error instanceof TypeError)
+      throw new Error("Связь с сервером прервалась. Повторите действие.");
+    throw error;
   });
   if (!response.ok) {
     const body = await response.json().catch(() => null);
     throw new APIError(
       response.status,
-      errorMessage(response.status, body?.error?.code),
+      body?.error?.fields?.media_ids ||
+        errorMessage(response.status, body?.error?.code),
+      body?.error?.code,
     );
   }
   if (response.status === 204) return undefined as T;

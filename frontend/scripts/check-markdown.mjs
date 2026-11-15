@@ -23,6 +23,20 @@ try {
       safe.includes('src="/media/'),
   );
   assert(safe.includes('rel="noopener noreferrer"'));
+  const { imageURLs } = await server.ssrLoadModule("/src/editorMedia.ts");
+  const url = "/media/30000000-0000-4000-8000-000000000001";
+  const withImages = [
+    "![Схема](" + url + ")",
+    "![Повтор][scheme]",
+    "[scheme]: " + url,
+    "`![Пример](sample.png)`",
+    "[Источник](https://example.org)",
+    "```md\n![Пример в блоке](local.png)\n```",
+  ].join("\n\n");
+  assert.deepEqual(imageURLs(withImages), [url]);
+  assert.deepEqual(imageURLs("![Внешняя](https://example.org/file.png)"), [
+    "https://example.org/file.png",
+  ]);
   const formula = render("$\\href{javascript:alert(1)}{x}$");
   assert(!formula.includes('href="javascript:'));
   console.log(

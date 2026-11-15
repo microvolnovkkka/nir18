@@ -12,9 +12,7 @@
 * {
   box-sizing: border-box;
 }
-html {
-  scroll-behavior: smooth;
-}
+
 body {
   margin: 0;
 }
@@ -92,7 +90,9 @@ header nav a {
 header nav a[aria-current] {
   box-shadow: 0 2px #0b729c;
 }
-header a:hover {
+header a:hover,
+.brand:hover,
+.brand:focus-visible {
   color: #087faa;
 }
 .account {
@@ -444,6 +444,8 @@ h3 {
   }
 }
 .catalog {
+  min-height: 100vh;
+  min-height: 100svh;
   padding: 45px 5% 80px;
   background: #fff;
   border-top: 1px solid var(--line);
@@ -1362,4 +1364,165 @@ input[aria-invalid="true"] {
   --rdp-accent-color: #08728b;
   --rdp-day-width: min(10.5vw, 42px);
   --rdp-day_button-width: min(10vw, 40px);
+}
+
+.work-page {
+  max-width: 980px;
+  margin: auto;
+  padding: clamp(32px, 5vw, 72px) clamp(18px, 4vw, 48px) 80px;
+  overflow-wrap: anywhere;
+}
+.work-page h1 {
+  font-size: clamp(32px, 5vw, 56px);
+  margin: 18px 0;
+}
+.work-heading,
+.author-actions,
+.editor-bottom,
+.edit-tools,
+.editor-tabs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.work-heading,
+.editor-bottom {
+  justify-content: space-between;
+}
+.work-heading {
+  margin-bottom: 20px;
+}
+.work-empty,
+.editor-sheet,
+.work-list li {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: clamp(18px, 3vw, 32px);
+  margin-top: 24px;
+}
+.work-list {
+  padding: 0;
+  list-style: none;
+}
+.work-list li {
+  border-left: 4px solid #68cfb3;
+}
+.work-list li > span,
+.work-list li > p,
+.editor-bottom > span {
+  color: #4f6f79;
+  font-size: 14px;
+}
+.work-list h2 {
+  font-size: clamp(21px, 3vw, 30px);
+  margin: 12px 0;
+}
+.work-list h2 a {
+  text-decoration: none;
+}
+.author-actions button:not(.primary),
+.edit-tools button,
+.editor-tabs button {
+  background: #f5faf8;
+  border: 1px solid #bad7cf;
+  border-radius: 6px;
+  color: var(--ink);
+  padding: 8px 12px;
+}
+.author-actions a {
+  margin-right: 6px;
+}
+.edit-tools button:hover,
+.editor-tabs button[aria-pressed="true"] {
+  background: #daf7e9;
+  color: #075d66;
+}
+.editor-sheet {
+  display: grid;
+  gap: 19px;
+}
+.editor-tabs {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 16px;
+}
+.editor-catalog {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.editor textarea {
+  width: 100%;
+  min-height: 340px;
+  resize: vertical;
+  padding: 18px;
+  border: 1px solid #aac8c7;
+  border-radius: 7px;
+  color: var(--ink);
+  font:
+    15px/1.7 ui-monospace,
+    monospace;
+}
+.edit-tools {
+  gap: 6px;
+}
+.edit-tools button {
+  font-size: 13px;
+}
+.editor-preview {
+  min-width: 0;
+}
+.editor-preview h2 {
+  font-size: clamp(25px, 4vw, 36px);
+}
+.editor-bottom {
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+.work-dialog {
+  width: min(440px, calc(100% - 32px));
+  padding: 26px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.work-dialog h2 {
+  margin-top: 0;
+}
+.work-dialog label {
+  margin: 15px 0;
+}
+.work-dialog::backdrop {
+  background: #103d4a66;
+}
+.work-dialog .author-actions {
+  margin-top: 20px;
+}
+.brand {
+  transition: color 0.18s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .brand {
+    transition: none;
+  }
+}
+@media (max-width: 650px) {
+  .editor-catalog {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .markdown table {
+    min-width: 32rem;
+  }
+}
+
+.write-success {
+  width: fit-content;
+  max-width: 100%;
+  margin: 1rem auto;
+  padding: 0.65rem 1rem;
+  border-left: 3px solid #168476;
+  background: #ddf5ed;
+  color: #184e50;
 }
