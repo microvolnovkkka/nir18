@@ -163,9 +163,8 @@ h3 {
 }
 .primary {
   display: inline-flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  gap: 30px;
   background: #096b95;
   color: white;
   border: 0;
@@ -173,6 +172,10 @@ h3 {
   text-decoration: none;
   padding: 17px 23px;
   font-size: 14px;
+}
+.hero .primary {
+  justify-content: space-between;
+  gap: 30px;
 }
 .primary:hover {
   background: #06587c;
@@ -1377,7 +1380,6 @@ input[aria-invalid="true"] {
   margin: 18px 0;
 }
 .work-heading,
-.author-actions,
 .editor-bottom,
 .edit-tools,
 .editor-tabs {
@@ -1422,7 +1424,27 @@ input[aria-invalid="true"] {
 .work-list h2 a {
   text-decoration: none;
 }
-.author-actions button:not(.primary),
+.author-actions {
+  display: grid;
+  width: min(100%, 18rem);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+  gap: 10px;
+}
+.author-actions > :is(a, button) {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.3;
+  text-align: center;
+  text-decoration: none;
+}
+.author-actions > :is(a, button):not(.primary),
 .edit-tools button,
 .editor-tabs button {
   background: #f5faf8;
@@ -1431,9 +1453,10 @@ input[aria-invalid="true"] {
   color: var(--ink);
   padding: 8px 12px;
 }
-.author-actions a {
-  margin-right: 6px;
+.author-actions > .notice {
+  grid-column: 1 / -1;
 }
+.author-actions > :is(a, button):not(.primary):hover,
 .edit-tools button:hover,
 .editor-tabs button[aria-pressed="true"] {
   background: #daf7e9;
@@ -1489,7 +1512,10 @@ input[aria-invalid="true"] {
   overflow-wrap: anywhere;
 }
 .work-dialog h2 {
-  margin-top: 0;
+  margin: 0 0 14px;
+  font-size: clamp(24px, 4vw, 28px);
+  line-height: 1.2;
+  letter-spacing: -0.03em;
 }
 .work-dialog label {
   margin: 15px 0;
@@ -1498,6 +1524,9 @@ input[aria-invalid="true"] {
   background: #103d4a66;
 }
 .work-dialog .author-actions {
+  width: 100%;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+  grid-auto-rows: 1fr;
   margin-top: 20px;
 }
 .brand {
