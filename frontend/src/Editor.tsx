@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   api,
   APIError,
@@ -11,7 +11,9 @@ import { date, ErrorNotice, openAfterWrite, useData } from "./shared";
 import { Markdown } from "./Markdown";
 import { Confirm, writeHeaders } from "./Workspace";
 import { ImageUpload } from "./ImageUpload";
-import { leaseImages } from "./editorMedia";
+import { flushSync } from "react-dom";
+import { CatalogSelect } from "./CatalogSelect";
+import { invalidImage, selectedImageAlt, leaseImages } from "./editorMedia";
 
 const tools = [
   ["Заголовок", "## ", "Заголовок", ""],
@@ -71,7 +73,18 @@ export function Editor({
   const [body, setBody] = useState(initial?.markdown || "");
   const [preview, setPreview] = useState(false);
   const [confirm, setConfirm] = useState(false);
-  const [upload, setUpload] = useState(false);
+  const [upload, setUpload] = useState<{
+    start: number;
+    end: number;
+    scrollTop: number;
+    alt: string;
+  } | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<
+    Partial<Record<"title" | "direction" | "subtopic" | "body", string>>
+  >({});
+  const [pendingLeave, setPendingLeave] = useState<{
+    proceed: () => void;
+  } | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [leaseError, setLeaseError] = useState<Error | null>(null);
@@ -82,7 +95,6 @@ export function Editor({
   const [conflict, setConflict] = useState(false);
   const [csrf, setCsrf] = useState(session.csrf_token);
   const text = useRef<HTMLTextAreaElement>(null);
-  const selection = useRef([0, 0]);
   const latest = useRef(body);
   const leaving = useRef(false);
   const retry = useRef<{ payload: string; key: string } | null>(null);
@@ -102,10 +114,47 @@ export function Editor({
         e.returnValue = "";
       }
     };
-    const logout = (e: Event) => {
-      if (!window.confirm("Выйти и потерять несохранённые изменения?"))
-        e.preventDefault();
+    const linkClick = (e: MouseEvent) => {
+      if (
+        e.defaultPrevented ||
+        e.button !== 0 ||
+        e.metaKey ||
+        e.ctrlKey ||
+        e.altKey ||
+        e.shiftKey
+      )
+        return;
+      const link =
+        e.target instanceof Element
+          ? e.target.closest<HTMLAnchorElement>("a[href]")
+          : null;
+      if (
+        !link ||
+        link.hasAttribute("download") ||
+        (link.target && link.target !== "_self") ||
+        link.origin !== location.origin
+      )
+        return;
+      if (
+        link.hash &&
+        link.pathname === location.pathname &&
+        link.search === location.search
+      )
+        return;
+      e.preventDefault();
+      const href = link.href;
+      setPendingLeave({
+        proceed: () => {
+          leaving.current = true;
+          location.assign(href);
+        },
+      });
     };
+    const logout = (e: Event) => {
+      e.preventDefault();
+      setPendingLeave({ proceed: (e as CustomEvent<() => void>).detail });
+    };
+    document.addEventListener("click", linkClick);
     const loggedOut = () => {
       leaving.current = true;
     };
@@ -113,6 +162,7 @@ export function Editor({
     window.addEventListener("beforeunload", unload);
     window.addEventListener("workspace-leave", logout);
     return () => {
+      document.removeEventListener("click", linkClick);
       window.removeEventListener("workspace-logout-complete", loggedOut);
       window.removeEventListener("beforeunload", unload);
       window.removeEventListener("workspace-leave", logout);
@@ -144,29 +194,51 @@ export function Editor({
       document.removeEventListener("visibilitychange", visible);
     };
   }, [session.user.id]);
-  function remember() {
-    if (text.current)
-      selection.current = [
-        text.current.selectionStart,
-        text.current.selectionEnd,
-      ];
+  function edited(field: keyof typeof fieldErrors) {
+    setFieldErrors((old) => ({ ...old, [field]: undefined }));
+    if (!conflict) setError(null);
   }
-  const insert = useCallback(
-    (prefix: string, fallback = "", suffix = "") => {
-      const [start, end] = selection.current;
-      const selected = body.slice(start, end) || fallback;
-      const replacement = prefix + selected + suffix;
-      setBody(body.slice(0, start) + replacement + body.slice(end));
-      requestAnimationFrame(() => {
-        text.current?.focus();
-        text.current?.setSelectionRange(
-          start + prefix.length,
-          start + prefix.length + selected.length,
-        );
-      });
-    },
-    [body],
-  );
+  function currentSelection() {
+    const el = text.current!;
+    return {
+      start: el.selectionStart,
+      end: el.selectionEnd,
+      scrollTop: el.scrollTop,
+    };
+  }
+  function replaceSelection(
+    range: ReturnType<typeof currentSelection>,
+    replacement: string,
+    selectFrom: number,
+    selectTo: number,
+  ) {
+    flushSync(() => {
+      setBody(body.slice(0, range.start) + replacement + body.slice(range.end));
+      edited("body");
+      setUpload(null);
+    });
+    const el = text.current!;
+    el.focus({ preventScroll: true });
+    el.setSelectionRange(range.start + selectFrom, range.start + selectTo);
+    el.scrollTop = range.scrollTop;
+  }
+  function insert(prefix: string, fallback: string, suffix: string) {
+    const range = currentSelection();
+    const content = body.slice(range.start, range.end) || fallback;
+    replaceSelection(
+      range,
+      prefix + content + suffix,
+      prefix.length,
+      prefix.length + content.length,
+    );
+  }
+  function openUpload() {
+    const range = currentSelection();
+    setUpload({
+      ...range,
+      alt: selectedImageAlt(body, range.start, range.end),
+    });
+  }
   const dirName = dirs.data?.items.find(
     (d) => String(d.id) === direction,
   )?.name;
@@ -174,18 +246,30 @@ export function Editor({
   const action = initial ? "Сохранить изменения" : "Опубликовать";
   function review() {
     setError(null);
-    if (!title.trim() || !sub || !body.trim()) {
-      setError(
-        new Error("Заполните заголовок, направление, подтему и текст статьи."),
-      );
-      return;
-    }
-    if ([...title].length > 200 || [...body].length > 200000) {
-      setError(
-        new Error(
-          "Допустимо до 200 символов в заголовке и до 200 000 в тексте.",
-        ),
-      );
+    const errors: typeof fieldErrors = {};
+    if (!title.trim()) errors.title = "Введите заголовок статьи.";
+    else if ([...title].length > 200)
+      errors.title = "Сократите заголовок до 200 символов.";
+    if (!direction) errors.direction = "Выберите направление.";
+    if (!sub) errors.subtopic = "Выберите подтему.";
+    const image = invalidImage(body);
+    if (!body.trim()) errors.body = "Введите текст статьи.";
+    else if ([...body].length > 200000)
+      errors.body = "Сократите текст до 200 000 символов.";
+    else if (image)
+      errors.body =
+        "Загрузите изображение «" +
+        (image.url || "пустая ссылка") +
+        "» через кнопку «Добавить изображение».";
+    const first = Object.keys(errors)[0];
+    if (first) {
+      flushSync(() => {
+        setPreview(false);
+        setFieldErrors(errors);
+      });
+      document.getElementById("article-" + first)?.focus();
+      if (first === "body" && image)
+        text.current?.setSelectionRange(image.start, image.end);
       return;
     }
     setConfirm(true);
@@ -201,7 +285,7 @@ export function Editor({
         markdown: body,
       });
       if (retry.current?.payload !== payload) {
-        await leaseImages(body, csrf, true);
+        await leaseImages(body, csrf);
         retry.current = { payload, key: crypto.randomUUID() };
       }
       const result = await api<{ id: string }>(
@@ -265,47 +349,59 @@ export function Editor({
           </article>
         ) : (
           <>
-            <label>
+            <label htmlFor="article-title">
               Заголовок
-              <input value={title} onChange={(e) => setTitle(e.target.value)} />
+              <input
+                id="article-title"
+                value={title}
+                aria-invalid={!!fieldErrors.title}
+                aria-describedby={fieldErrors.title ? "title-error" : undefined}
+                onChange={(e) => {
+                  setTitle(e.target.value);
+                  edited("title");
+                }}
+              />
             </label>
+            {fieldErrors.title && (
+              <small id="title-error" className="field-error" role="alert">
+                {fieldErrors.title}
+              </small>
+            )}
             <div className="editor-catalog">
-              <label>
-                <span id="direction-label">Направление</span>
-                <select
-                  aria-labelledby="direction-label"
-                  value={direction}
-                  onChange={(e) => {
-                    setDirection(e.target.value);
-                    setSub("");
-                  }}
-                >
-                  <option value="">Выберите направление</option>
-                  {dirs.data?.items.map((d) => (
-                    <option key={d.id} value={d.id}>
-                      {d.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                <span id="subtopic-label">Подтема</span>
-                <select
-                  aria-labelledby="subtopic-label"
-                  disabled={!direction}
-                  value={sub}
-                  onChange={(e) => setSub(e.target.value)}
-                >
-                  <option value="">Выберите подтему</option>
-                  {subs.data?.items
-                    .filter((s) => String(s.direction_id) === direction)
-                    .map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.name}
-                      </option>
-                    ))}
-                </select>
-              </label>
+              <CatalogSelect
+                id="article-direction"
+                label="Направление"
+                placeholder="Выберите направление"
+                value={direction}
+                options={dirs.data?.items || []}
+                error={fieldErrors.direction}
+                onChange={(value) => {
+                  if (value !== direction) setSub("");
+                  setDirection(value);
+                  edited("direction");
+                }}
+              />
+              <CatalogSelect
+                id="article-subtopic"
+                label="Подтема"
+                placeholder={
+                  direction
+                    ? "Выберите подтему"
+                    : "Сначала выберите направление"
+                }
+                value={sub}
+                disabled={!direction}
+                options={
+                  subs.data?.items.filter(
+                    (s) => String(s.direction_id) === direction,
+                  ) || []
+                }
+                error={fieldErrors.subtopic}
+                onChange={(value) => {
+                  setSub(value);
+                  edited("subtopic");
+                }}
+              />
             </div>
             {(dirs.error || subs.error) && (
               <ErrorNotice
@@ -334,19 +430,25 @@ export function Editor({
                   {label}
                 </button>
               ))}
-              <button onClick={() => setUpload(true)}>
-                Добавить изображение
-              </button>
+              <button onClick={openUpload}>Добавить изображение</button>
             </div>
             <textarea
               id="article-body"
               ref={text}
               value={body}
-              onSelect={remember}
-              onBlur={remember}
-              onChange={(e) => setBody(e.target.value)}
+              aria-invalid={!!fieldErrors.body}
+              aria-describedby={fieldErrors.body ? "body-error" : undefined}
+              onChange={(e) => {
+                setBody(e.target.value);
+                edited("body");
+              }}
               placeholder="Начните с вопроса исследования…"
             />
+            {fieldErrors.body && (
+              <small id="body-error" className="field-error" role="alert">
+                {fieldErrors.body}
+              </small>
+            )}
           </>
         )}
         {issue && (
@@ -388,20 +490,27 @@ export function Editor({
       {upload && (
         <ImageUpload
           session={{ ...session, csrf_token: csrf }}
-          cancel={() => setUpload(false)}
-          insert={(markup) => {
-            const [start, end] = selection.current;
-            setBody(body.slice(0, start) + markup + body.slice(end));
-            setUpload(false);
-            requestAnimationFrame(() => {
-              text.current?.focus();
-              text.current?.setSelectionRange(
-                start + markup.length,
-                start + markup.length,
-              );
-            });
-          }}
+          initialAlt={upload.alt}
+          cancel={() => setUpload(null)}
+          insert={(markup) =>
+            replaceSelection(upload, markup, markup.length, markup.length)
+          }
         />
+      )}
+      {pendingLeave && (
+        <Confirm
+          title="Покинуть редактор?"
+          action="Покинуть"
+          cancelLabel="Остаться"
+          busy={false}
+          cancel={() => setPendingLeave(null)}
+          submit={() => {
+            setPendingLeave(null);
+            pendingLeave.proceed();
+          }}
+        >
+          <p>Несохранённые изменения будут потеряны.</p>
+        </Confirm>
       )}
       {confirm && (
         <Confirm
@@ -411,11 +520,17 @@ export function Editor({
           cancel={() => setConfirm(false)}
           submit={save}
         >
-          <strong>{title}</strong>
-          <p>
-            {dirName} · {subName}
-          </p>
-          <p>Автор · {session.user.display_name}</p>
+          <p className="confirm-title">{title}</p>
+          <p className="byline">Автор · {session.user.display_name}</p>
+          <details className="confirm-catalog">
+            <summary>Направление и подтема</summary>
+            <dl>
+              <dt>Направление</dt>
+              <dd>{dirName}</dd>
+              <dt>Подтема</dt>
+              <dd>{subName}</dd>
+            </dl>
+          </details>
         </Confirm>
       )}
     </section>

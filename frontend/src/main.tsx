@@ -455,9 +455,15 @@ function App() {
         if (!(e instanceof APIError && e.status === 401)) setError(e.message);
       });
   }, []);
-  async function logout() {
+  async function logout(confirmed = false) {
     if (
-      !window.dispatchEvent(new Event("workspace-leave", { cancelable: true }))
+      !confirmed &&
+      !window.dispatchEvent(
+        new CustomEvent("workspace-leave", {
+          cancelable: true,
+          detail: () => logout(true),
+        }),
+      )
     )
       return;
     if (!session) return;
@@ -502,7 +508,7 @@ function App() {
         {session && (
           <div className="account">
             <a href="/workspace">Мой раздел →</a>
-            <button disabled={busy} onClick={logout}>
+            <button disabled={busy} onClick={() => logout()}>
               Выйти
             </button>
           </div>

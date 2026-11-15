@@ -5,15 +5,17 @@ import { Confirm } from "./Workspace";
 
 export function ImageUpload({
   session,
+  initialAlt,
   cancel,
   insert,
 }: {
   session: Session;
+  initialAlt: string;
   cancel: () => void;
   insert: (text: string) => void;
 }) {
   const [pending, setPending] = useState<{ file: File; id: string }>();
-  const [alt, setAlt] = useState("");
+  const [alt, setAlt] = useState(initialAlt);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   async function upload() {
@@ -62,11 +64,15 @@ export function ImageUpload({
       cancel={cancel}
       submit={upload}
     >
-      <p>PNG, JPEG или WebP · до 5 МиБ и 20 мегапикселей</p>
-      <label>
-        Файл изображения
+      <p>До 5 МиБ и 20 мегапикселей</p>
+      <label className="file-choice">
+        <span className="file-choice-button">Выбрать изображение</span>
+        <span className="file-choice-name">
+          {pending?.file.name || "PNG, JPEG или WebP"}
+        </span>
         <input
           type="file"
+          aria-label="Файл изображения"
           accept="image/png,image/jpeg,image/webp"
           disabled={busy}
           onChange={(e) => {
