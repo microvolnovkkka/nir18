@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"nir18/backend/internal/bot"
 	"nir18/backend/internal/httpapi"
 	"nir18/backend/internal/platform"
 	"os"
@@ -31,7 +32,22 @@ func run() error {
 	if addr == "" {
 		addr = "127.0.0.1:8081"
 	}
-	app, err := httpapi.New(pool, httpapi.Config{Origin: os.Getenv("APP_ORIGIN"), MediaDir: os.Getenv("MEDIA_DIR"), Secure: os.Getenv("COOKIE_SECURE") == "true", TrustProxy: os.Getenv("TRUST_PROXY") == "true"})
+	cfg := httpapi.Config{
+		Origin:     os.Getenv("APP_ORIGIN"),
+		MediaDir:   os.Getenv("MEDIA_DIR"),
+		Secure:     os.Getenv("COOKIE_SECURE") == "true",
+		TrustProxy: os.Getenv("TRUST_PROXY") == "true",
+		BotMode:    os.Getenv("BOT_MODE"),
+	}
+	if cfg.BotMode == "model" {
+		responder, err := modelFromEnv()
+		if err != nil {
+			slog.Warn("bot model unavailable", "error", err)
+		} else {
+			cfg.BotResponder = responder
+		}
+	}
+	app, err := httpapi.New(pool, cfg)
 	if err != nil {
 		return err
 	}
@@ -68,4 +84,12 @@ func run() error {
 		}
 	}
 	return nil
+}
+
+func modelFromEnv() (*bot.DeepSeek, error) {
+	cfg, err := bot.DeepSeekConfigFromEnv()
+	if err != nil {
+		return nil, err
+	}
+	return bot.NewDeepSeek(cfg, nil)
 }

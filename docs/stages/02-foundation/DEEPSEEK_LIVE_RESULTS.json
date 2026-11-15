@@ -1,0 +1,778 @@
+[
+  {
+    "id": "01-fast",
+    "scenario": 1,
+    "thinking": false,
+    "http_status": 200,
+    "kind": "report",
+    "diagnostics": {
+      "model": "deepseek-flash",
+      "prompt_version": "nir18-2026-11-06.1",
+      "thinking": false,
+      "elapsed_ms": 6556,
+      "provider_http": 200,
+      "finish_reason": "stop",
+      "reasoning_present": false,
+      "reasoning_characters": 0,
+      "content_characters": 3528,
+      "usage": {
+        "prompt_tokens": 3014,
+        "completion_tokens": 937,
+        "total_tokens": 3951
+      }
+    },
+    "elapsed_end_to_end_ms": 6566,
+    "status": "Пройдено автоматически",
+    "checks": [
+      {
+        "name": "Ожидаемый kind",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "id": "01-thinking",
+    "scenario": 1,
+    "thinking": true,
+    "http_status": 200,
+    "kind": "report",
+    "diagnostics": {
+      "model": "deepseek-flash",
+      "prompt_version": "nir18-2026-11-06.1",
+      "thinking": true,
+      "elapsed_ms": 10388,
+      "provider_http": 200,
+      "finish_reason": "stop",
+      "reasoning_present": true,
+      "reasoning_characters": 3556,
+      "content_characters": 3013,
+      "usage": {
+        "prompt_tokens": 3039,
+        "completion_tokens": 1782,
+        "total_tokens": 4821
+      }
+    },
+    "elapsed_end_to_end_ms": 10392,
+    "status": "Пройдено автоматически",
+    "checks": [
+      {
+        "name": "Ожидаемый kind",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "id": "02-fast",
+    "scenario": 2,
+    "thinking": false,
+    "http_status": 200,
+    "kind": "report",
+    "diagnostics": {
+      "model": "deepseek-flash",
+      "prompt_version": "nir18-2026-11-06.1",
+      "thinking": false,
+      "elapsed_ms": 14642,
+      "provider_http": 200,
+      "finish_reason": "stop",
+      "reasoning_present": false,
+      "reasoning_characters": 0,
+      "content_characters": 8705,
+      "usage": {
+        "prompt_tokens": 3352,
+        "completion_tokens": 2431,
+        "total_tokens": 5783
+      }
+    },
+    "elapsed_end_to_end_ms": 14646,
+    "status": "Пройдено автоматически",
+    "checks": [
+      {
+        "name": "Ожидаемый kind",
+        "pass": true
+      },
+      {
+        "name": "Формула совпала посимвольно",
+        "pass": true
+      },
+      {
+        "name": "Защищённая вставка совпала посимвольно",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "id": "02-thinking",
+    "scenario": 2,
+    "thinking": true,
+    "http_status": 200,
+    "kind": "report",
+    "diagnostics": {
+      "model": "deepseek-flash",
+      "prompt_version": "nir18-2026-11-06.1",
+      "thinking": true,
+      "elapsed_ms": 32270,
+      "provider_http": 200,
+      "finish_reason": "stop",
+      "reasoning_present": true,
+      "reasoning_characters": 8193,
+      "content_characters": 11337,
+      "usage": {
+        "prompt_tokens": 3377,
+        "completion_tokens": 5439,
+        "total_tokens": 8816
+      }
+    },
+    "elapsed_end_to_end_ms": 32273,
+    "status": "Пройдено автоматически",
+    "checks": [
+      {
+        "name": "Ожидаемый kind",
+        "pass": true
+      },
+      {
+        "name": "Формула совпала посимвольно",
+        "pass": true
+      },
+      {
+        "name": "Защищённая вставка совпала посимвольно",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "id": "03-fast",
+    "scenario": 3,
+    "thinking": false,
+    "http_status": 200,
+    "kind": "report",
+    "diagnostics": {
+      "model": "deepseek-flash",
+      "prompt_version": "nir18-2026-11-06.1",
+      "thinking": false,
+      "elapsed_ms": 6745,
+      "provider_http": 200,
+      "finish_reason": "stop",
+      "reasoning_present": false,
+      "reasoning_characters": 0,
+      "content_characters": 3814,
+      "usage": {
+        "prompt_tokens": 3249,
+        "completion_tokens": 1071,
+        "total_tokens": 4320
+      }
+    },
+    "elapsed_end_to_end_ms": 6749,
+    "status": "Пройдено автоматически",
+    "checks": [
+      {
+        "name": "Ожидаемый kind",
+        "pass": true
+      },
+      {
+        "name": "Пример ссылки остался внутри блока кода",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "id": "03-thinking",
+    "scenario": 3,
+    "thinking": true,
+    "http_status": 200,
+    "kind": "report",
+    "diagnostics": {
+      "model": "deepseek-flash",
+      "prompt_version": "nir18-2026-11-06.1",
+      "thinking": true,
+      "elapsed_ms": 29497,
+      "provider_http": 200,
+      "finish_reason": "stop",
+      "reasoning_present": true,
+      "reasoning_characters": 8612,
+      "content_characters": 9184,
+      "usage": {
+        "prompt_tokens": 3274,
+        "completion_tokens": 4665,
+        "total_tokens": 7939
+      }
+    },
+    "elapsed_end_to_end_ms": 29505,
+    "status": "Пройдено автоматически",
+    "checks": [
+      {
+        "name": "Ожидаемый kind",
+        "pass": true
+      },
+      {
+        "name": "Пример ссылки остался внутри блока кода",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "id": "04-fast",
+    "scenario": 4,
+    "thinking": false,
+    "http_status": 200,
+    "kind": "clarification",
+    "diagnostics": {
+      "model": "deepseek-flash",
+      "prompt_version": "nir18-2026-11-06.1",
+      "thinking": false,
+      "elapsed_ms": 3295,
+      "provider_http": 200,
+      "finish_reason": "stop",
+      "reasoning_present": false,
+      "reasoning_characters": 0,
+      "content_characters": 1445,
+      "usage": {
+        "prompt_tokens": 2992,
+        "completion_tokens": 402,
+        "total_tokens": 3394
+      }
+    },
+    "elapsed_end_to_end_ms": 3297,
+    "status": "Пройдено автоматически",
+    "checks": [
+      {
+        "name": "Ожидаемый kind",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "id": "04-thinking",
+    "scenario": 4,
+    "thinking": true,
+    "http_status": 200,
+    "kind": "clarification",
+    "diagnostics": {
+      "model": "deepseek-flash",
+      "prompt_version": "nir18-2026-11-06.1",
+      "thinking": true,
+      "elapsed_ms": 5069,
+      "provider_http": 200,
+      "finish_reason": "stop",
+      "reasoning_present": true,
+      "reasoning_characters": 724,
+      "content_characters": 1734,
+      "usage": {
+        "prompt_tokens": 3017,
+        "completion_tokens": 643,
+        "total_tokens": 3660
+      }
+    },
+    "elapsed_end_to_end_ms": 5073,
+    "status": "Пройдено автоматически",
+    "checks": [
+      {
+        "name": "Ожидаемый kind",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "id": "05-fast",
+    "scenario": 5,
+    "thinking": false,
+    "http_status": 200,
+    "kind": "clarification",
+    "diagnostics": {
+      "model": "deepseek-flash",
+      "prompt_version": "nir18-2026-11-06.1",
+      "thinking": false,
+      "elapsed_ms": 2964,
+      "provider_http": 200,
+      "finish_reason": "stop",
+      "reasoning_present": false,
+      "reasoning_characters": 0,
+      "content_characters": 1114,
+      "usage": {
+        "prompt_tokens": 2942,
+        "completion_tokens": 331,
+        "total_tokens": 3273
+      }
+    },
+    "elapsed_end_to_end_ms": 2966,
+    "status": "Пройдено автоматически",
+    "checks": [
+      {
+        "name": "Ожидаемый kind",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "id": "05-thinking",
+    "scenario": 5,
+    "thinking": true,
+    "http_status": 200,
+    "kind": "clarification",
+    "diagnostics": {
+      "model": "deepseek-flash",
+      "prompt_version": "nir18-2026-11-06.1",
+      "thinking": true,
+      "elapsed_ms": 2703,
+      "provider_http": 200,
+      "finish_reason": "stop",
+      "reasoning_present": true,
+      "reasoning_characters": 94,
+      "content_characters": 1061,
+      "usage": {
+        "prompt_tokens": 2967,
+        "completion_tokens": 336,
+        "total_tokens": 3303
+      }
+    },
+    "elapsed_end_to_end_ms": 2706,
+    "status": "Пройдено автоматически",
+    "checks": [
+      {
+        "name": "Ожидаемый kind",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "id": "06-fast",
+    "scenario": 6,
+    "thinking": false,
+    "http_status": 200,
+    "kind": "report",
+    "diagnostics": {
+      "model": "deepseek-flash",
+      "prompt_version": "nir18-2026-11-06.1",
+      "thinking": false,
+      "elapsed_ms": 14162,
+      "provider_http": 200,
+      "finish_reason": "stop",
+      "reasoning_present": false,
+      "reasoning_characters": 0,
+      "content_characters": 7716,
+      "usage": {
+        "prompt_tokens": 3024,
+        "completion_tokens": 2159,
+        "total_tokens": 5183
+      }
+    },
+    "elapsed_end_to_end_ms": 14164,
+    "status": "Пройдено автоматически",
+    "checks": [
+      {
+        "name": "Ожидаемый kind",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "id": "06-thinking",
+    "scenario": 6,
+    "thinking": true,
+    "http_status": 200,
+    "kind": "report",
+    "diagnostics": {
+      "model": "deepseek-flash",
+      "prompt_version": "nir18-2026-11-06.1",
+      "thinking": true,
+      "elapsed_ms": 18744,
+      "provider_http": 200,
+      "finish_reason": "stop",
+      "reasoning_present": true,
+      "reasoning_characters": 2032,
+      "content_characters": 8164,
+      "usage": {
+        "prompt_tokens": 3049,
+        "completion_tokens": 2735,
+        "total_tokens": 5784
+      }
+    },
+    "elapsed_end_to_end_ms": 18752,
+    "status": "Пройдено автоматически",
+    "checks": [
+      {
+        "name": "Ожидаемый kind",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "id": "07-fast",
+    "scenario": 7,
+    "thinking": false,
+    "http_status": 200,
+    "kind": "report",
+    "diagnostics": {
+      "model": "deepseek-flash",
+      "prompt_version": "nir18-2026-11-06.1",
+      "thinking": false,
+      "elapsed_ms": 14084,
+      "provider_http": 200,
+      "finish_reason": "stop",
+      "reasoning_present": false,
+      "reasoning_characters": 0,
+      "content_characters": 7865,
+      "usage": {
+        "prompt_tokens": 2987,
+        "completion_tokens": 2135,
+        "total_tokens": 5122
+      }
+    },
+    "elapsed_end_to_end_ms": 14086,
+    "status": "Пройдено автоматически",
+    "checks": [
+      {
+        "name": "Ожидаемый kind",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "id": "07-thinking",
+    "scenario": 7,
+    "thinking": true,
+    "http_status": 200,
+    "kind": "report",
+    "diagnostics": {
+      "model": "deepseek-flash",
+      "prompt_version": "nir18-2026-11-06.1",
+      "thinking": true,
+      "elapsed_ms": 35291,
+      "provider_http": 200,
+      "finish_reason": "stop",
+      "reasoning_present": true,
+      "reasoning_characters": 4786,
+      "content_characters": 14386,
+      "usage": {
+        "prompt_tokens": 3012,
+        "completion_tokens": 5254,
+        "total_tokens": 8266
+      }
+    },
+    "elapsed_end_to_end_ms": 35297,
+    "status": "Пройдено автоматически",
+    "checks": [
+      {
+        "name": "Ожидаемый kind",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "id": "08-fast-1",
+    "scenario": 8,
+    "thinking": false,
+    "http_status": 200,
+    "kind": "report",
+    "diagnostics": {
+      "model": "deepseek-flash",
+      "prompt_version": "nir18-2026-11-06.1",
+      "thinking": false,
+      "elapsed_ms": 14856,
+      "provider_http": 200,
+      "finish_reason": "stop",
+      "reasoning_present": false,
+      "reasoning_characters": 0,
+      "content_characters": 8401,
+      "usage": {
+        "prompt_tokens": 2959,
+        "completion_tokens": 2245,
+        "total_tokens": 5204
+      }
+    },
+    "elapsed_end_to_end_ms": 14859,
+    "status": "Пройдено автоматически",
+    "checks": [
+      {
+        "name": "Ожидаемый kind",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "id": "08-thinking-1",
+    "scenario": 8,
+    "thinking": true,
+    "http_status": 200,
+    "kind": "report",
+    "diagnostics": {
+      "model": "deepseek-flash",
+      "prompt_version": "nir18-2026-11-06.1",
+      "thinking": true,
+      "elapsed_ms": 26870,
+      "provider_http": 200,
+      "finish_reason": "stop",
+      "reasoning_present": true,
+      "reasoning_characters": 4456,
+      "content_characters": 10816,
+      "usage": {
+        "prompt_tokens": 2984,
+        "completion_tokens": 4147,
+        "total_tokens": 7131
+      }
+    },
+    "elapsed_end_to_end_ms": 26872,
+    "status": "Пройдено автоматически",
+    "checks": [
+      {
+        "name": "Ожидаемый kind",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "id": "08-fast-2",
+    "scenario": 8,
+    "thinking": false,
+    "http_status": 200,
+    "kind": "report",
+    "diagnostics": {
+      "model": "deepseek-flash",
+      "prompt_version": "nir18-2026-11-06.1",
+      "thinking": false,
+      "elapsed_ms": 2474,
+      "provider_http": 200,
+      "finish_reason": "stop",
+      "reasoning_present": false,
+      "reasoning_characters": 0,
+      "content_characters": 1139,
+      "usage": {
+        "prompt_tokens": 5116,
+        "completion_tokens": 294,
+        "total_tokens": 5410
+      }
+    },
+    "elapsed_end_to_end_ms": 2476,
+    "status": "Пройдено автоматически",
+    "checks": [
+      {
+        "name": "Ожидаемый kind",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "id": "08-thinking-2",
+    "scenario": 8,
+    "thinking": true,
+    "http_status": 200,
+    "kind": "report",
+    "diagnostics": {
+      "model": "deepseek-flash",
+      "prompt_version": "nir18-2026-11-06.1",
+      "thinking": true,
+      "elapsed_ms": 5778,
+      "provider_http": 200,
+      "finish_reason": "stop",
+      "reasoning_present": true,
+      "reasoning_characters": 2410,
+      "content_characters": 1271,
+      "usage": {
+        "prompt_tokens": 5839,
+        "completion_tokens": 859,
+        "total_tokens": 6698
+      }
+    },
+    "elapsed_end_to_end_ms": 5780,
+    "status": "Пройдено автоматически",
+    "checks": [
+      {
+        "name": "Ожидаемый kind",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "id": "09-fast",
+    "scenario": 9,
+    "thinking": false,
+    "http_status": 200,
+    "kind": "clarification",
+    "diagnostics": {
+      "model": "deepseek-flash",
+      "prompt_version": "nir18-2026-11-06.1",
+      "thinking": false,
+      "elapsed_ms": 3839,
+      "provider_http": 200,
+      "finish_reason": "stop",
+      "reasoning_present": false,
+      "reasoning_characters": 0,
+      "content_characters": 1440,
+      "usage": {
+        "prompt_tokens": 2971,
+        "completion_tokens": 384,
+        "total_tokens": 3355
+      }
+    },
+    "elapsed_end_to_end_ms": 3841,
+    "status": "Пройдено автоматически",
+    "checks": [
+      {
+        "name": "Ожидаемый kind",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "id": "09-thinking",
+    "scenario": 9,
+    "thinking": true,
+    "http_status": 200,
+    "kind": "clarification",
+    "diagnostics": {
+      "model": "deepseek-flash",
+      "prompt_version": "nir18-2026-11-06.1",
+      "thinking": true,
+      "elapsed_ms": 4798,
+      "provider_http": 200,
+      "finish_reason": "stop",
+      "reasoning_present": true,
+      "reasoning_characters": 585,
+      "content_characters": 1633,
+      "usage": {
+        "prompt_tokens": 2996,
+        "completion_tokens": 578,
+        "total_tokens": 3574
+      }
+    },
+    "elapsed_end_to_end_ms": 4801,
+    "status": "Пройдено автоматически",
+    "checks": [
+      {
+        "name": "Ожидаемый kind",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "id": "10-fast-1",
+    "scenario": 10,
+    "thinking": false,
+    "http_status": 200,
+    "kind": "report",
+    "diagnostics": {
+      "model": "deepseek-flash",
+      "prompt_version": "nir18-2026-11-06.1",
+      "thinking": false,
+      "elapsed_ms": 6960,
+      "provider_http": 200,
+      "finish_reason": "stop",
+      "reasoning_present": false,
+      "reasoning_characters": 0,
+      "content_characters": 3655,
+      "usage": {
+        "prompt_tokens": 3009,
+        "completion_tokens": 989,
+        "total_tokens": 3998
+      }
+    },
+    "elapsed_end_to_end_ms": 6962,
+    "status": "Пройдено автоматически",
+    "checks": [
+      {
+        "name": "Ожидаемый kind",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "id": "10-thinking-1",
+    "scenario": 10,
+    "thinking": true,
+    "http_status": 200,
+    "kind": "report",
+    "diagnostics": {
+      "model": "deepseek-flash",
+      "prompt_version": "nir18-2026-11-06.1",
+      "thinking": true,
+      "elapsed_ms": 33466,
+      "provider_http": 200,
+      "finish_reason": "stop",
+      "reasoning_present": true,
+      "reasoning_characters": 9372,
+      "content_characters": 9059,
+      "usage": {
+        "prompt_tokens": 3034,
+        "completion_tokens": 4865,
+        "total_tokens": 7899
+      }
+    },
+    "elapsed_end_to_end_ms": 33469,
+    "status": "Пройдено автоматически",
+    "checks": [
+      {
+        "name": "Ожидаемый kind",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "id": "10-fast-2",
+    "scenario": 10,
+    "thinking": false,
+    "http_status": 200,
+    "kind": "report",
+    "diagnostics": {
+      "model": "deepseek-flash",
+      "prompt_version": "nir18-2026-11-06.1",
+      "thinking": false,
+      "elapsed_ms": 2026,
+      "provider_http": 200,
+      "finish_reason": "stop",
+      "reasoning_present": false,
+      "reasoning_characters": 0,
+      "content_characters": 713,
+      "usage": {
+        "prompt_tokens": 3886,
+        "completion_tokens": 194,
+        "total_tokens": 4080
+      }
+    },
+    "elapsed_end_to_end_ms": 2029,
+    "status": "Пройдено автоматически",
+    "checks": [
+      {
+        "name": "Ожидаемый kind",
+        "pass": true
+      },
+      {
+        "name": "Удалённая схема отсутствует",
+        "pass": true
+      }
+    ]
+  },
+  {
+    "id": "10-thinking-2",
+    "scenario": 10,
+    "thinking": true,
+    "http_status": 200,
+    "kind": "report",
+    "diagnostics": {
+      "model": "deepseek-flash",
+      "prompt_version": "nir18-2026-11-06.1",
+      "thinking": true,
+      "elapsed_ms": 6839,
+      "provider_http": 200,
+      "finish_reason": "stop",
+      "reasoning_present": true,
+      "reasoning_characters": 2958,
+      "content_characters": 1102,
+      "usage": {
+        "prompt_tokens": 5317,
+        "completion_tokens": 971,
+        "total_tokens": 6288
+      }
+    },
+    "elapsed_end_to_end_ms": 6841,
+    "status": "Пройдено автоматически",
+    "checks": [
+      {
+        "name": "Ожидаемый kind",
+        "pass": true
+      },
+      {
+        "name": "Удалённая схема отсутствует",
+        "pass": true
+      }
+    ]
+  }
+]

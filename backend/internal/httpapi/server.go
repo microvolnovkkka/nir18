@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"net/url"
 	"nir18/backend/internal/auth"
+	"nir18/backend/internal/bot"
 	"os"
 	"regexp"
 	"strconv"
@@ -27,6 +28,9 @@ type Config struct {
 	Secure, TrustProxy                           bool
 	LoginPairLimit, LoginIPLimit, TemporaryFiles int
 	TemporaryBytes                               int64
+	BotMode                                      string
+	BotResponder                                 bot.Responder
+	BotRequestsPerMinute                         int
 }
 type Server struct {
 	db                *pgxpool.Pool
@@ -35,6 +39,8 @@ type Server struct {
 	passwords, images chan struct{}
 	mu                sync.Mutex
 	attempts          map[string]attempt
+	botMu             sync.Mutex
+	botUsers          map[string]*botUser
 }
 type attempt struct {
 	Count int
@@ -67,6 +73,7 @@ func New(pool *pgxpool.Pool, cfg Config) (*Server, error) {
 		fallback int
 	}{
 		{"LOGIN_PAIR_LIMIT", &cfg.LoginPairLimit, 5}, {"LOGIN_IP_LIMIT", &cfg.LoginIPLimit, 30}, {"TEMP_MEDIA_COUNT", &cfg.TemporaryFiles, 100},
+		{"BOT_REQUESTS_PER_MINUTE", &cfg.BotRequestsPerMinute, 5},
 	} {
 		if *setting.target == 0 {
 			*setting.target = setting.fallback
@@ -78,6 +85,21 @@ func New(pool *pgxpool.Pool, cfg Config) (*Server, error) {
 				*setting.target = n
 			}
 		}
+	}
+	if cfg.BotRequestsPerMinute < 1 || cfg.BotRequestsPerMinute > 100000 {
+		return nil, fmt.Errorf("invalid BOT_REQUESTS_PER_MINUTE")
+	}
+	if cfg.BotMode == "" {
+		cfg.BotMode = "stub"
+	}
+	switch cfg.BotMode {
+	case "stub":
+		if cfg.BotResponder == nil {
+			cfg.BotResponder = bot.Stub{}
+		}
+	case "model":
+	default:
+		return nil, fmt.Errorf("BOT_MODE must be stub or model")
 	}
 	if cfg.TemporaryBytes == 0 {
 		cfg.TemporaryBytes = 500 << 20
@@ -109,7 +131,13 @@ func New(pool *pgxpool.Pool, cfg Config) (*Server, error) {
 	if e != nil {
 		return nil, e
 	}
-	return &Server{db: pool, cfg: cfg, dummy: dummy, passwords: make(chan struct{}, 2), images: make(chan struct{}, 2), attempts: make(map[string]attempt)}, nil
+	return &Server{
+		db: pool, cfg: cfg, dummy: dummy,
+		passwords: make(chan struct{}, 2),
+		images:    make(chan struct{}, 2),
+		attempts:  make(map[string]attempt),
+		botUsers:  make(map[string]*botUser),
+	}, nil
 }
 func (s *Server) Handler() http.Handler {
 	m := http.NewServeMux()
@@ -120,6 +148,7 @@ func (s *Server) Handler() http.Handler {
 		"GET /api/publications": s.list, "GET /api/publications/{id}": s.read,
 		"POST /api/publications": s.mutate, "PUT /api/publications/{id}": s.mutate, "DELETE /api/publications/{id}": s.mutate,
 		"POST /api/media": s.upload, "POST /api/media/lease": s.lease, "GET /media/{id}": s.media,
+		"POST /api/bot/respond": s.botRespond,
 	} {
 		m.HandleFunc(route, s.wrap(h))
 	}
@@ -165,6 +194,20 @@ func message(code string) string {
 		return "Недостаточно прав"
 	case "unavailable", "storage_unavailable":
 		return "Сервис временно недоступен"
+	case "bot_busy":
+		return "Дождитесь завершения запроса к боту или отмените его"
+	case "contract_version_unsupported":
+		return "Версия контракта бота не поддерживается"
+	case "media_context_invalid":
+		return "Проверьте доступность изображений в редакторе"
+	case "bot_invalid_response":
+		return "Бот вернул ответ неподдерживаемого формата"
+	case "bot_media_mismatch":
+		return "Бот изменил защищённые вставки изображений"
+	case "bot_unavailable":
+		return "Бот временно недоступен"
+	case "bot_timeout":
+		return "Не удалось дождаться ответа. Можно повторить запрос"
 	}
 	return "Запрос не выполнен: " + code
 }

@@ -1,5 +1,4 @@
 // Package bot defines the embedded-module boundary from contract 1.0.
-// No HTTP handler is enabled until authentication is implemented.
 package bot
 
 import "context"

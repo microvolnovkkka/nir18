@@ -284,20 +284,6 @@ func (d *DeepSeek) RespondMeasured(ctx context.Context, in Input) (out Output, d
 		invalid()
 		return
 	}
-	if result.Kind != "report" && result.Kind != "clarification" {
-		invalid()
-		return
-	}
-	if !validText(result.Markdown, 200000, MaxMarkdownBytes) || result.Warnings == nil || len(result.Warnings) > 10 {
-		invalid()
-		return
-	}
-	for _, warning := range result.Warnings {
-		if !validText(warning, 500, 2000) {
-			invalid()
-			return
-		}
-	}
 	if strings.Contains(result.Markdown, d.config.APIKey) {
 		invalid()
 		return
@@ -308,11 +294,11 @@ func (d *DeepSeek) RespondMeasured(ctx context.Context, in Input) (out Output, d
 			return
 		}
 	}
-	if mediaErr := ValidateOutputImages(result.Kind, result.Markdown, in.ProtectedImages); mediaErr != nil {
-		err = mediaErr
+	candidate := Output{Kind: result.Kind, Markdown: result.Markdown, Warnings: result.Warnings}
+	if err = ValidateOutput(candidate, in.ProtectedImages); err != nil {
 		return
 	}
-	out = Output{Kind: result.Kind, Markdown: result.Markdown, Warnings: result.Warnings}
+	out = candidate
 	return
 }
 
@@ -364,7 +350,8 @@ func validText(s string, runes, size int) bool {
 	return utf8.ValidString(s) && strings.TrimSpace(s) != "" && len(s) <= size && utf8.RuneCountInString(s) <= runes
 }
 
-func ValidateInput(in Input) error {
+// ValidateInputText checks the text, roles, and size limits before media parsing.
+func ValidateInputText(in Input) error {
 	if !validText(in.Topic.Title, 200, 800) || !validText(in.Message, 20000, 80000) || len(in.History) > 20 || len(in.CurrentMarkdown) > MaxMarkdownBytes || utf8.RuneCountInString(in.CurrentMarkdown) > 200000 || !utf8.ValidString(in.CurrentMarkdown) {
 		return ErrInvalidInput
 	}
@@ -378,11 +365,32 @@ func ValidateInput(in Input) error {
 	if total > 80000 {
 		return ErrInvalidInput
 	}
+	return nil
+}
+
+func ValidateInput(in Input) error {
+	if err := ValidateInputText(in); err != nil {
+		return err
+	}
 	images, err := ProtectedImages(in.CurrentMarkdown)
 	if err != nil || !sameImages(images, in.ProtectedImages) {
 		return ErrInvalidInput
 	}
 	return nil
+}
+
+// ValidateOutput checks the text and exact protected insertions before a result is sent to the client.
+func ValidateOutput(out Output, protected []string) error {
+	if (out.Kind != "report" && out.Kind != "clarification") ||
+		!validText(out.Markdown, 200000, MaxMarkdownBytes) || len(out.Warnings) > 10 {
+		return &Failure{Code: "invalid_response"}
+	}
+	for _, warning := range out.Warnings {
+		if !validText(warning, 500, 2000) {
+			return &Failure{Code: "invalid_response"}
+		}
+	}
+	return ValidateOutputImages(out.Kind, out.Markdown, protected)
 }
 
 func retryAfter(value string) int {

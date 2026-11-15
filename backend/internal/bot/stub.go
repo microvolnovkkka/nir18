@@ -2,6 +2,7 @@ package bot
 
 import (
 	"context"
+	"strings"
 	"time"
 )
 
@@ -29,9 +30,12 @@ func (s Stub) Respond(ctx context.Context, in Input) (Output, error) {
 		return Output{}, &Failure{Code: s.FailureCode, RetryAfterSeconds: 2}
 	}
 	body := in.CurrentMarkdown
-	if body == "" {
+	if strings.TrimSpace(body) == "" {
 		body = "## Тестовый ответ\n\nЭто демонстрационная заглушка. Реальная модель не подключена.\n\nПеред публикацией автор должен подготовить и проверить содержательный отчёт."
 	}
-	body += "\n\n_Тестовый режим: генерация не выполнялась._"
+	withNote := body + "\n\n_Тестовый режим: генерация не выполнялась._"
+	if validText(withNote, 200000, MaxMarkdownBytes) {
+		body = withNote
+	}
 	return Output{Kind: "report", Markdown: body, Warnings: []string{"Тестовый режим: реальная генерация не подключена."}}, nil
 }

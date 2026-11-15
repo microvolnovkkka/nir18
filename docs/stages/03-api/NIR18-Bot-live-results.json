@@ -1,0 +1,38 @@
+[
+  {
+    "scenario": "report",
+    "thinking": "off",
+    "http": 200,
+    "elapsed_ms": 6086,
+    "mode": "model",
+    "kind": "report",
+    "image_preserved": true,
+    "latex_preserved": true,
+    "checks_passed": true,
+    "error_code": null
+  },
+  {
+    "scenario": "report",
+    "thinking": "on",
+    "http": 200,
+    "elapsed_ms": 8991,
+    "mode": "model",
+    "kind": "report",
+    "image_preserved": true,
+    "latex_preserved": true,
+    "checks_passed": true,
+    "error_code": null
+  },
+  {
+    "scenario": "clarification",
+    "thinking": "on",
+    "http": 200,
+    "elapsed_ms": 4003,
+    "mode": "model",
+    "kind": "clarification",
+    "image_preserved": null,
+    "latex_preserved": null,
+    "checks_passed": true,
+    "error_code": null
+  }
+]
