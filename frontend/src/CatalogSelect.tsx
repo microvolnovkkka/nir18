@@ -55,6 +55,7 @@ export function CatalogSelect({
         type="button"
         id={id}
         role="combobox"
+        title={options[selected]?.name || placeholder}
         aria-labelledby={id + "-label"}
         aria-expanded={open}
         aria-controls={listId}

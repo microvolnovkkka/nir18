@@ -1,6 +1,8 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
+import rehypeHighlight from "rehype-highlight";
+import "highlight.js/styles/github.css";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
 export function Markdown({ text }: { text: string }) {
@@ -10,6 +12,7 @@ export function Markdown({ text }: { text: string }) {
         skipHtml
         remarkPlugins={[remarkGfm, remarkMath]}
         rehypePlugins={[
+          [rehypeHighlight, { detect: false }],
           [rehypeKatex, { trust: false, strict: "warn", maxExpand: 1000 }],
         ]}
         urlTransform={(url, key) =>

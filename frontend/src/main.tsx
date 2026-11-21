@@ -27,6 +27,7 @@ import { catalogFilters, DateFilters } from "./DateFilters";
 
 import {
   date,
+  topicLabel,
   ErrorNotice,
   openAfterWrite,
   WriteNotice,
@@ -267,7 +268,9 @@ function Catalog() {
                     <div>
                       <span className="tag">Направление {p.direction.id}</span>
                       <h3>{p.title}</h3>
-                      <p>{p.subtopic.name}</p>
+                      <p className="topic-meta">
+                        Подтема · {topicLabel(p.subtopic.name)}
+                      </p>
                       <small>
                         {p.author.display_name} <span>·</span> Обновлено{" "}
                         {date(p.updated_at)}
@@ -341,7 +344,9 @@ function Article({ id, session }: { id: string; session?: Session | null }) {
         <p className="byline">
           {data.author.display_name} · Обновлено {date(data.updated_at)}
         </p>
-        <p className="subtopic">{data.subtopic.name}</p>
+        <p className="subtopic topic-meta">
+          Подтема · {topicLabel(data.subtopic.name)}
+        </p>
         {session?.user.id === data.author.id && (
           <div className="author-actions">
             <a href={`/workspace/publications/${id}/edit`}>Редактировать</a>

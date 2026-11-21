@@ -6,7 +6,7 @@ import {
   type Publication,
   type Listing,
 } from "./api";
-import { date, ErrorNotice, useData } from "./shared";
+import { date, ErrorNotice, topicLabel, useData } from "./shared";
 
 export function Confirm({
   title,
@@ -176,7 +176,9 @@ export function Workspace({ session }: { session: Session }) {
               <ul className="work-list">
                 {list.data.items.map((item) => (
                   <li key={item.id}>
-                    <span>{item.subtopic.name}</span>
+                    <span className="topic-meta">
+                      Подтема · {topicLabel(item.subtopic.name)}
+                    </span>
                     <h2>
                       <a href={"/publications/" + item.id}>{item.title}</a>
                     </h2>

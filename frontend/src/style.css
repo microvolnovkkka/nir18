@@ -1,12 +1,17 @@
 :root {
-  font-family: Arial, Helvetica, sans-serif;
+  --font-ui: Arial, Helvetica, sans-serif;
+  font-family: var(--font-ui);
   color: #143f50;
   background: #f7fbfa;
   font-synthesis: none;
   font-weight: 400;
   --ink: #143f50;
-  --blue: #09659c;
-  --mint: #d6f4e8;
+  --action: #096b95;
+  --action-hover: #06587c;
+  --selected: #ddf3ee;
+  --selected-ink: #15545f;
+  --soft-blue: #e6f3f7;
+  --accent: #5bb4b7;
   --line: #d4e5e2;
 }
 * {
@@ -118,8 +123,8 @@ header a:hover,
   overflow: hidden;
 }
 .eyebrow {
-  font: 600 12px/1.7 monospace;
-  letter-spacing: 1.1px;
+  font: 600 13px/1.7 var(--font-ui);
+  letter-spacing: normal;
   margin: 0 0 23px;
   display: flex;
   align-items: center;
@@ -165,7 +170,7 @@ h3 {
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  background: #096b95;
+  background: var(--action);
   color: white;
   border: 0;
   border-radius: 5px;
@@ -178,7 +183,7 @@ h3 {
   gap: 30px;
 }
 .primary:hover {
-  background: #06587c;
+  background: var(--action-hover);
 }
 .hero > div {
   min-width: 0;
@@ -260,14 +265,14 @@ h3 {
   animation-delay: calc(var(--order) * 32ms + var(--phase, 0s));
 }
 .signal-flow {
-  stroke: #dfff52;
+  stroke: #84d9c3;
   stroke-width: 2.5;
   stroke-dasharray: 16 84;
   animation: signal-travel var(--signal-cycle) linear infinite;
-  filter: drop-shadow(0 0 2px #b9e63a);
+  filter: drop-shadow(0 0 2px #84d9c3);
 }
 .landmarks-hand .signal-flow {
-  stroke: #b4ef63;
+  stroke: #70c8c9;
 }
 .research-signal[data-running="false"] * {
   animation-play-state: paused !important;
@@ -429,8 +434,8 @@ h3 {
   animation: wave 4.5s ease-in-out 1;
 }
 .signal-caption {
-  font: 12px monospace;
-  letter-spacing: 1.4px;
+  font: 12px/1.5 var(--font-ui);
+  letter-spacing: normal;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -467,7 +472,7 @@ h3 {
   color: #05b993;
 }
 .count {
-  font: 12px monospace;
+  font: 12px/1.5 var(--font-ui);
   color: #557782;
   border: 1px solid var(--line);
   padding: 10px 15px;
@@ -482,7 +487,7 @@ h3 {
 aside h3 {
   font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: normal;
   margin: 5px 0 15px;
 }
 aside nav {
@@ -507,15 +512,15 @@ aside button span {
   place-items: center;
   flex: 0 0 25px;
   height: 25px;
-  font: 600 13px monospace;
+  font: 600 13px/1.4 var(--font-ui);
   color: #286975;
   background: #edf5f3;
   border: 1px solid #d3e4e0;
   border-radius: 7px;
 }
 aside button.selected {
-  background: #ddf6ec;
-  color: #104c50;
+  background: var(--selected);
+  color: var(--selected-ink);
 }
 aside button.selected span {
   color: #007f80;
@@ -548,14 +553,14 @@ aside button:hover {
 .search button {
   border: 0;
   border-left: 1px solid #c6dddb;
-  background: #dcffbd;
-  color: #235347;
+  background: var(--action);
+  color: white;
   font-size: 13px;
   padding: 12px 23px;
   white-space: nowrap;
 }
 .search button:hover {
-  background: #c4ff95;
+  background: var(--action-hover);
 }
 .filters {
   display: grid;
@@ -640,20 +645,20 @@ select {
   letter-spacing: -0.5px;
 }
 .article-row p {
-  font-size: 12px;
-  color: #718b94;
+  font-size: 13px;
+  color: #4f6f79;
   margin: 0 0 17px;
 }
 .article-row small {
-  font-size: 11px;
+  font-size: 12px;
   color: #5d7c89;
 }
 .article-row small span {
   padding: 0 6px;
 }
 .tag {
-  font: 10px monospace;
-  background: #e3f5f7;
+  font: 12px/1.5 var(--font-ui);
+  background: var(--soft-blue);
   color: #236c7e;
   border-radius: 20px;
   padding: 5px 10px;
@@ -694,9 +699,9 @@ footer p {
 }
 footer > span {
   margin-left: auto;
-  font: 9px monospace;
+  font: 11px/1.5 var(--font-ui);
   color: #78999e;
-  letter-spacing: 1px;
+  letter-spacing: normal;
 }
 .notice {
   padding: 18px;
@@ -757,7 +762,7 @@ footer > span {
 }
 .markdown pre {
   font: 13px/1.7 monospace;
-  background: #e9f1f1;
+  background: #f6f8fa;
   padding: 20px;
   border-radius: 5px;
   overflow: auto;
@@ -1409,7 +1414,7 @@ input[aria-invalid="true"] {
   list-style: none;
 }
 .work-list li {
-  border-left: 4px solid #68cfb3;
+  border-left: 4px solid var(--accent);
 }
 .work-list li > span,
 .work-list li > p,
@@ -1459,8 +1464,8 @@ input[aria-invalid="true"] {
 .author-actions > :is(a, button):not(.primary):hover,
 .edit-tools button:hover,
 .editor-tabs button[aria-pressed="true"] {
-  background: #daf7e9;
-  color: #075d66;
+  background: var(--selected);
+  color: var(--selected-ink);
 }
 .editor-sheet {
   display: grid;
@@ -1483,9 +1488,7 @@ input[aria-invalid="true"] {
   border: 1px solid #aac8c7;
   border-radius: 7px;
   color: var(--ink);
-  font:
-    15px/1.7 ui-monospace,
-    monospace;
+  font: 15px/1.7 var(--font-ui);
 }
 .edit-tools {
   gap: 6px;
@@ -1551,9 +1554,9 @@ input[aria-invalid="true"] {
   max-width: 100%;
   margin: 1rem auto;
   padding: 0.65rem 1rem;
-  border-left: 3px solid #168476;
-  background: #ddf5ed;
-  color: #184e50;
+  border-left: 3px solid var(--accent);
+  background: var(--selected);
+  color: var(--selected-ink);
 }
 
 .workspace-byline {
@@ -1579,7 +1582,18 @@ input[aria-invalid="true"] {
   background: white;
   color: var(--ink);
   font-size: 14px;
-  min-height: 44px;
+  height: 70px;
+  line-height: 22px;
+}
+.catalog-choice > button span:first-child {
+  min-width: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.catalog-choice > button span:last-child {
+  flex: 0 0 auto;
 }
 .catalog-choice > button[aria-expanded="true"] {
   border-color: #168a9c;
@@ -1614,7 +1628,7 @@ input[aria-invalid="true"] {
 }
 .catalog-choice li[data-active="true"],
 .catalog-choice li:hover {
-  background: #daf7e9;
+  background: var(--selected);
 }
 .catalog-choice .field-error {
   display: block;
@@ -1634,7 +1648,7 @@ input[aria-invalid="true"] {
   padding: 10px 14px;
   border: 1px solid #99c6bd;
   border-radius: 6px;
-  color: #075d66;
+  color: var(--selected-ink);
   background: #edf9f4;
   font-size: 14px;
 }
@@ -1678,4 +1692,17 @@ input[aria-invalid="true"] {
 }
 .confirm-catalog dd {
   margin: 3px 0 8px;
+}
+
+.markdown pre > code.hljs {
+  padding: 0;
+  overflow: visible;
+  background: transparent;
+}
+.markdown code {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+.topic-meta {
+  font: 13px/1.6 var(--font-ui);
+  color: #4f6f79;
 }

@@ -253,8 +253,8 @@ export function ResearchSignal() {
           className="signal-labels"
           fill="#385f69"
           fontSize="12"
-          fontFamily="monospace"
-          letterSpacing="1.4"
+          fontFamily="var(--font-ui)"
+          letterSpacing="0"
         >
           <text x="543" y="59">
             МИМИКА

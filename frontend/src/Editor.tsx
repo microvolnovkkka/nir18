@@ -1,3 +1,4 @@
+import { revealTextRange } from "./revealTextRange";
 import { useEffect, useRef, useState } from "react";
 import {
   api,
@@ -7,7 +8,13 @@ import {
   type Session,
   type Subtopic,
 } from "./api";
-import { date, ErrorNotice, openAfterWrite, useData } from "./shared";
+import {
+  date,
+  ErrorNotice,
+  openAfterWrite,
+  topicLabel,
+  useData,
+} from "./shared";
 import { Markdown } from "./Markdown";
 import { Confirm, writeHeaders } from "./Workspace";
 import { ImageUpload } from "./ImageUpload";
@@ -268,8 +275,8 @@ export function Editor({
         setFieldErrors(errors);
       });
       document.getElementById("article-" + first)?.focus();
-      if (first === "body" && image)
-        text.current?.setSelectionRange(image.start, image.end);
+      if (first === "body" && image && text.current)
+        revealTextRange(text.current, image.start, image.end);
       return;
     }
     setConfirm(true);
@@ -334,7 +341,9 @@ export function Editor({
           <article className="editor-preview">
             <p className="eyebrow">{dirName}</p>
             <h2>{title || "Без заголовка"}</h2>
-            <p>{subName}</p>
+            {subName && (
+              <p className="topic-meta">Подтема · {topicLabel(subName)}</p>
+            )}
             <p className="byline">
               {session.user.display_name} ·{" "}
               {initial

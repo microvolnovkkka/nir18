@@ -53,10 +53,28 @@ try {
   );
   assert.equal(selectedImageAlt(source, start + 1, source.length), "");
   assert.equal(invalidImage(withImages), undefined);
+  const code = render(
+    [
+      "```python\ndef predict(frame):\n    return 'face'\n```",
+      "```javascript\nconst label = 'gesture';\n```",
+      "```unknown-language\nUnchanged text <tag>\n```",
+      "```\nPlain text\n```",
+      "$$\nx^2\n$$",
+    ].join("\n\n"),
+  );
+  assert(code.includes("hljs-keyword") && code.includes("hljs-string"));
+  assert(
+    code.includes("language-python") && code.includes("language-javascript"),
+  );
+  assert(code.includes("Unchanged text &lt;tag&gt;"));
+  assert(code.includes("Plain text") && code.includes("katex-display"));
+  const { topicLabel } = await server.ssrLoadModule("/src/shared.tsx");
+  assert.equal(topicLabel("Модели FER.  "), "Модели FER");
+  assert.equal(topicLabel("A. B и C"), "A. B и C");
   const formula = render("$\\href{javascript:alert(1)}{x}$");
   assert(!formula.includes('href="javascript:'));
   console.log(
-    "Markdown: таблицы, формулы, изображения и блокировка опасных URL/HTML — OK",
+    "Markdown: таблицы, формулы, подсветка кода, изображения, метаданные и блокировка опасных URL/HTML — OK",
   );
 } finally {
   await server.close();

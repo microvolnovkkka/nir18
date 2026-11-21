@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { api } from "./api";
+export const topicLabel = (name: string) => name.trim().replace(/[.。]+$/, "");
+
 export const date = (value: string) =>
   new Intl.DateTimeFormat("ru-RU", {
     dateStyle: "long",
