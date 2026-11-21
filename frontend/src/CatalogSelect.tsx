@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import type { Named } from "./api";
 
 type Props = {
   id: string;
   label: string;
   placeholder: string;
-  options: Named[];
+  options: { id: number | string; name: string }[];
   value: string;
   onChange: (value: string) => void;
   disabled?: boolean;

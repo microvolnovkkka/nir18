@@ -586,10 +586,6 @@ select {
   font-size: 14px;
   width: 100%;
 }
-.filters select {
-  width: 100%;
-  text-overflow: ellipsis;
-}
 .result-meta {
   display: flex;
   justify-content: space-between;
@@ -1305,7 +1301,7 @@ footer > span {
   }
 }
 
-.filters select:disabled {
+.filters .catalog-choice > button:disabled {
   background: #edf3f1;
   color: #506d76;
   opacity: 1;
@@ -1622,6 +1618,8 @@ input[aria-invalid="true"] {
   cursor: pointer;
   color: var(--ink);
   font-size: 14px;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
 }
 .catalog-choice li[aria-selected="true"] {
   font-weight: 600;
@@ -1633,6 +1631,36 @@ input[aria-invalid="true"] {
 .catalog-choice .field-error {
   display: block;
   margin-top: 6px;
+}
+.filters .catalog-choice > button,
+.filters .date-field input {
+  height: 44px;
+}
+.filters .catalog-choice > button span:first-child {
+  display: block;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.filters .catalog-choice ul {
+  width: max(100%, 28rem);
+}
+.filters .catalog-choice:nth-child(2) ul {
+  width: max(100%, 16rem);
+}
+@media (max-width: 1000px) {
+  .filters .catalog-choice ul,
+  .filters .catalog-choice:nth-child(2) ul {
+    width: calc(200% + 12px);
+  }
+  .filters .catalog-choice:nth-child(2) ul {
+    right: 0;
+  }
+}
+@media (max-width: 650px) {
+  .filters .catalog-choice ul,
+  .filters .catalog-choice:nth-child(2) ul {
+    width: calc(200% + 10px);
+  }
 }
 .editor [aria-invalid="true"] {
   border-color: #a13930;

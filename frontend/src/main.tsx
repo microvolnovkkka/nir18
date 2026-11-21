@@ -24,6 +24,7 @@ import "./style.css";
 import { About } from "./About";
 import { ResearchSignal } from "./ResearchSignal";
 import { catalogFilters, DateFilters } from "./DateFilters";
+import { CatalogSelect } from "./CatalogSelect";
 
 import {
   date,
@@ -177,56 +178,42 @@ function Catalog() {
               <button type="submit">Найти</button>
             </form>
             <div className="filters">
-              <label>
-                Подтема
-                <select
-                  value={filters.subtopic_id || ""}
-                  disabled={!filters.direction_id || !subs.data}
-                  title={
-                    !filters.direction_id
-                      ? "Сначала выберите направление"
-                      : "Подтема выбранного направления"
-                  }
-                  onChange={(e) => {
-                    const s = subs.data?.items.find(
-                      (s) => String(s.id) === e.target.value,
-                    );
-                    change({
-                      subtopic_id: e.target.value,
-                      ...(s ? { direction_id: String(s.direction_id) } : {}),
-                    });
-                  }}
-                >
-                  <option value="">
-                    {filters.direction_id
-                      ? "Все подтемы"
-                      : "Выберите направление"}
-                  </option>
-                  {subs.data?.items
-                    .filter(
-                      (s) => String(s.direction_id) === filters.direction_id,
-                    )
-                    .map((s) => (
-                      <option value={s.id} key={s.id}>
-                        {s.name}
-                      </option>
-                    ))}
-                </select>
-              </label>
-              <label>
-                Автор
-                <select
-                  value={filters.author_id || ""}
-                  onChange={(e) => change({ author_id: e.target.value })}
-                >
-                  <option value="">Все авторы</option>
-                  {authors.data?.items.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {a.display_name}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <CatalogSelect
+                id="filter-subtopic"
+                label="Подтема"
+                placeholder={
+                  filters.direction_id ? "Все подтемы" : "Выберите направление"
+                }
+                value={filters.subtopic_id || ""}
+                disabled={!filters.direction_id || !subs.data}
+                options={
+                  filters.direction_id
+                    ? [
+                        { id: "", name: "Все подтемы" },
+                        ...(subs.data?.items.filter(
+                          (s) =>
+                            String(s.direction_id) === filters.direction_id,
+                        ) || []),
+                      ]
+                    : []
+                }
+                onChange={(value) => change({ subtopic_id: value })}
+              />
+              <CatalogSelect
+                id="filter-author"
+                label="Автор"
+                placeholder="Все авторы"
+                value={filters.author_id || ""}
+                disabled={!authors.data}
+                options={[
+                  { id: "", name: "Все авторы" },
+                  ...(authors.data?.items.map((a) => ({
+                    id: a.id,
+                    name: a.display_name,
+                  })) || []),
+                ]}
+                onChange={(value) => change({ author_id: value })}
+              />
               <DateFilters key={filterReset} value={filters} onApply={change} />
             </div>
             {(subs.error || authors.error) && (
