@@ -2,14 +2,20 @@ import { fromMarkdown } from "mdast-util-from-markdown";
 import { visit } from "unist-util-visit";
 import { api, APIError } from "./api";
 
-function markdownImages(markdown: string) {
+export function markdownImages(markdown: string) {
   const tree = fromMarkdown(markdown);
   const definitions = new Map<string, string>();
   visit(tree, "definition", (node) => {
     if (!definitions.has(node.identifier))
       definitions.set(node.identifier, node.url);
   });
-  const images: { url: string; alt: string; start: number; end: number }[] = [];
+  const images: {
+    url: string;
+    alt: string;
+    start: number;
+    end: number;
+    referenceType?: string;
+  }[] = [];
   visit(tree, (node) => {
     if (
       (node.type !== "image" && node.type !== "imageReference") ||
@@ -17,6 +23,9 @@ function markdownImages(markdown: string) {
     )
       return;
     images.push({
+      ...(node.type === "imageReference"
+        ? { referenceType: node.referenceType }
+        : {}),
       url:
         node.type === "image"
           ? node.url
@@ -44,13 +53,16 @@ export function selectedImageAlt(markdown: string, start: number, end: number) {
   );
 }
 export function invalidImage(markdown: string) {
-  return markdownImages(markdown).find((image) => !internal.test(image.url));
+  return markdownImages(markdown).find(
+    (image) => !internalMediaURL.test(image.url),
+  );
 }
-const internal = /^\/media\/([a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12})$/;
+export const internalMediaURL =
+  /^\/media\/([a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12})$/;
 export async function leaseImages(markdown: string, csrf: string) {
   const urls = imageURLs(markdown);
   const ids = urls
-    .filter((url) => internal.test(url))
+    .filter((url) => internalMediaURL.test(url))
     .map((url) => url.slice("/media/".length));
   if (ids.length > 100)
     throw new Error("В статье может быть до 100 изображений.");

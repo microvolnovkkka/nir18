@@ -372,7 +372,9 @@ function Login({ onLogin }: { onLogin: (s: Session) => void }) {
       onLogin(session);
       const target = new URLSearchParams(location.search).get("returnTo") || "";
       location.assign(
-        target === "/workspace/new" || editPath.test(target)
+        target === "/bot" ||
+          target === "/workspace/new" ||
+          editPath.test(target)
           ? target
           : "/workspace",
       );
@@ -515,7 +517,10 @@ function App() {
           <Catalog />
         ) : path === "/login" ? (
           <Login onLogin={setSession} />
-        ) : path === "/workspace" || path === "/workspace/new" || edit ? (
+        ) : path === "/bot" ||
+          path === "/workspace" ||
+          path === "/workspace/new" ||
+          edit ? (
           session === undefined ? (
             <p className="empty">Проверяем вход…</p>
           ) : !session ? (
@@ -532,7 +537,11 @@ function App() {
             <Workspace session={session} />
           ) : (
             <Suspense fallback={<p className="empty">Открываем редактор…</p>}>
-              <EditorRoute session={session} id={edit?.[1]} />
+              <EditorRoute
+                session={session}
+                id={edit?.[1]}
+                bot={path === "/bot"}
+              />
             </Suspense>
           )
         ) : path === "/about" ? (

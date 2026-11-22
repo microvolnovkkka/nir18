@@ -2,6 +2,7 @@ export type Named = { id: number; name: string };
 export type Author = { id: string; display_name: string };
 export type Subtopic = Named & { direction_id: number };
 export type Session = {
+  bot_mode?: "stub" | "model";
   user: Author & { login: string };
   csrf_token: string;
   expires_at: string;
@@ -28,6 +29,7 @@ export class APIError extends Error {
     public status: number,
     message: string,
     public code?: string,
+    public retryAfter = 0,
   ) {
     super(message);
   }
@@ -81,6 +83,7 @@ export async function api<T>(
       body?.error?.fields?.media_ids ||
         errorMessage(response.status, body?.error?.code),
       body?.error?.code,
+      Number(response.headers.get("Retry-After")) || 0,
     );
   }
   if (response.status === 204) return undefined as T;

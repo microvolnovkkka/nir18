@@ -1,3 +1,4 @@
+import { BotChat, type EditorTab } from "./BotChat";
 import { revealTextRange } from "./revealTextRange";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -38,14 +39,16 @@ const tools = [
 export default function EditorRoute({
   session,
   id,
+  bot = false,
 }: {
   session: Session;
   id?: string;
+  bot?: boolean;
 }) {
   return id ? (
     <LoadArticle id={id} session={session} />
   ) : (
-    <Editor session={session} />
+    <Editor session={session} bot={bot} />
   );
 }
 function LoadArticle({ session, id }: { session: Session; id: string }) {
@@ -66,9 +69,11 @@ function LoadArticle({ session, id }: { session: Session; id: string }) {
 export function Editor({
   session,
   initial,
+  bot = false,
 }: {
   session: Session;
   initial?: Publication;
+  bot?: boolean;
 }) {
   const dirs = useData<{ items: Named[] }>("/api/directions");
   const subs = useData<{ items: Subtopic[] }>("/api/subtopics");
@@ -78,7 +83,8 @@ export function Editor({
   );
   const [sub, setSub] = useState(String(initial?.subtopic.id || ""));
   const [body, setBody] = useState(initial?.markdown || "");
-  const [preview, setPreview] = useState(false);
+  const [tab, setTab] = useState<EditorTab>(bot ? "chat" : "edit");
+  const [chatDirty, setChatDirty] = useState(false);
   const [confirm, setConfirm] = useState(false);
   const [upload, setUpload] = useState<{
     start: number;
@@ -106,6 +112,7 @@ export function Editor({
   const leaving = useRef(false);
   const retry = useRef<{ payload: string; key: string } | null>(null);
   const dirty =
+    chatDirty ||
     title !== (initial?.title || "") ||
     sub !== String(initial?.subtopic.id || "") ||
     direction !== String(initial?.direction.id || "") ||
@@ -251,14 +258,26 @@ export function Editor({
   )?.name;
   const subName = subs.data?.items.find((s) => String(s.id) === sub)?.name;
   const action = initial ? "Сохранить изменения" : "Опубликовать";
-  function review() {
-    setError(null);
+  function topicErrors() {
     const errors: typeof fieldErrors = {};
     if (!title.trim()) errors.title = "Введите заголовок статьи.";
     else if ([...title].length > 200)
       errors.title = "Сократите заголовок до 200 символов.";
     if (!direction) errors.direction = "Выберите направление.";
     if (!sub) errors.subtopic = "Выберите подтему.";
+    return errors;
+  }
+  function validateTopic() {
+    const errors = topicErrors();
+    const first = Object.keys(errors)[0];
+    if (!first) return true;
+    setFieldErrors(errors);
+    document.getElementById("article-" + first)?.focus();
+    return false;
+  }
+  function review() {
+    setError(null);
+    const errors = topicErrors();
     const image = invalidImage(body);
     if (!body.trim()) errors.body = "Введите текст статьи.";
     else if ([...body].length > 200000)
@@ -271,7 +290,7 @@ export function Editor({
     const first = Object.keys(errors)[0];
     if (first) {
       flushSync(() => {
-        setPreview(false);
+        setTab("edit");
         setFieldErrors(errors);
       });
       document.getElementById("article-" + first)?.focus();
@@ -325,19 +344,44 @@ export function Editor({
     }
   }
   return (
-    <section className="work-page editor">
-      <a href="/workspace">← Мой раздел</a>
-      <h1>{initial ? "Редактирование статьи" : "Новая публикация"}</h1>
+    <section className={bot ? "work-page editor bot-page" : "work-page editor"}>
+      <div>
+        <a href="/workspace">← Мой раздел</a>
+        {bot && <span className="bot-crumb"> / ИИ-бот</span>}
+      </div>
+      <h1>
+        {bot
+          ? "Новый отчёт"
+          : initial
+            ? "Редактирование статьи"
+            : "Новая публикация"}
+      </h1>
+      {bot && session.bot_mode === "stub" && (
+        <p className="bot-mode">
+          Тестовая заглушка · реальная модель не подключена
+        </p>
+      )}
       <div className="editor-sheet">
-        <div className="editor-tabs" aria-label="Режим просмотра">
-          <button aria-pressed={!preview} onClick={() => setPreview(false)}>
+        <div className="editor-tabs" role="group" aria-label="Режим просмотра">
+          {bot && (
+            <button
+              aria-pressed={tab === "chat"}
+              onClick={() => setTab("chat")}
+            >
+              Чат
+            </button>
+          )}
+          <button aria-pressed={tab === "edit"} onClick={() => setTab("edit")}>
             Редактор Markdown
           </button>
-          <button aria-pressed={preview} onClick={() => setPreview(true)}>
+          <button
+            aria-pressed={tab === "preview"}
+            onClick={() => setTab("preview")}
+          >
             Предпросмотр
           </button>
         </div>
-        {preview ? (
+        {tab === "preview" ? (
           <article className="editor-preview">
             <p className="eyebrow">{dirName}</p>
             <h2>{title || "Без заголовка"}</h2>
@@ -421,6 +465,26 @@ export function Editor({
                 }}
               />
             )}
+          </>
+        )}
+        {bot && (
+          <BotChat
+            tab={tab}
+            csrf={csrf}
+            title={title}
+            subtopic={sub}
+            body={body}
+            validateTopic={validateTopic}
+            onDirty={setChatDirty}
+            openEditor={() => setTab("edit")}
+            apply={(markdown) => {
+              setBody(markdown);
+              edited("body");
+            }}
+          />
+        )}
+        {tab === "edit" && (
+          <>
             <p className="byline">
               Автор · {session.user.display_name}
               <br />
@@ -485,16 +549,18 @@ export function Editor({
             Открыть актуальную статью в новой вкладке
           </a>
         )}
-        <div className="editor-bottom">
-          <span>{dirty ? "Есть несохранённые изменения" : ""}</span>
-          <button
-            className="primary"
-            disabled={busy || conflict || !dirs.data || !subs.data}
-            onClick={review}
-          >
-            {action}
-          </button>
-        </div>
+        {tab !== "chat" && (
+          <div className="editor-bottom">
+            <span>{dirty ? "Есть несохранённые изменения" : ""}</span>
+            <button
+              className="primary"
+              disabled={busy || conflict || !dirs.data || !subs.data}
+              onClick={review}
+            >
+              {action}
+            </button>
+          </div>
+        )}
       </div>
       {upload && (
         <ImageUpload

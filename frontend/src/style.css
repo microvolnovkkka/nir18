@@ -1734,3 +1734,171 @@ input[aria-invalid="true"] {
   font: 13px/1.6 var(--font-ui);
   color: #4f6f79;
 }
+
+.work-actions,
+.bot-chat-heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.work-actions .primary,
+.secondary-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  text-align: center;
+}
+.secondary-action {
+  padding: 9px 16px;
+  border: 1px solid #aacbc9;
+  border-radius: 6px;
+  background: #f4faf9;
+  color: var(--selected-ink);
+  font: inherit;
+  text-decoration: none;
+}
+.work-actions .primary {
+  padding: 9px 16px;
+  font: inherit;
+}
+.bot-crumb {
+  color: #496b76;
+  margin-inline-start: 4px;
+}
+.secondary-action:hover {
+  background: var(--selected);
+}
+.bot-chat,
+.bot-chat form,
+.bot-proposal {
+  display: grid;
+  min-width: 0;
+  gap: 14px;
+}
+.bot-chat {
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+}
+.bot-chat-heading {
+  justify-content: space-between;
+}
+.bot-chat h2,
+.bot-proposal h2 {
+  margin: 0;
+  font-size: 22px;
+}
+.bot-hint,
+.bot-proposal > p {
+  margin: 0;
+  line-height: 1.6;
+}
+.bot-hint {
+  color: #4f6f79;
+}
+.editor #bot-message {
+  min-height: 104px;
+}
+.bot-log,
+.proposal-text {
+  overflow: auto;
+  max-height: min(60vh, 36rem);
+  overflow-wrap: anywhere;
+  scrollbar-color: #98bdbf transparent;
+}
+.bot-log {
+  display: grid;
+  gap: 24px;
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+}
+.bot-log > li {
+  min-width: 0;
+}
+.bot-question,
+.bot-answer,
+.bot-proposal {
+  padding: clamp(14px, 2vw, 24px);
+  border-radius: 10px;
+}
+.bot-question {
+  background: var(--soft-blue);
+  width: fit-content;
+  max-width: 90%;
+  margin-left: auto;
+}
+.bot-question p {
+  white-space: pre-wrap;
+  margin: 0.5em 0 0;
+}
+.bot-answer {
+  border-left: 3px solid var(--accent);
+  margin-top: 12px;
+  background: #f5faf9;
+}
+.bot-log strong,
+.bot-wait {
+  color: var(--selected-ink);
+}
+.bot-warnings {
+  margin: 12px 0;
+  padding-inline-start: 1.25em;
+  font-size: 0.94rem;
+  color: #475e66;
+}
+.bot-proposal {
+  border: 1px solid #aacbc9;
+  background: #f5faf9;
+}
+.proposal-text {
+  padding: 0 12px;
+  background: white;
+  border-radius: 6px;
+}
+.bot-chat form > [role="status"]:empty {
+  display: none;
+}
+.bot-wait::before {
+  content: "";
+  display: inline-block;
+  width: 0.6em;
+  height: 0.6em;
+  margin-right: 0.6em;
+  border-radius: 50%;
+  background: var(--action);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .bot-wait::before {
+    animation: bot-pulse 1.3s ease-in-out infinite alternate;
+  }
+  @keyframes bot-pulse {
+    to {
+      opacity: 0.35;
+    }
+  }
+}
+
+.bot-mode {
+  display: inline-block;
+  margin: 0;
+  padding: 7px 12px;
+  border-radius: 6px;
+  font-size: 0.94rem;
+  background: var(--soft-blue);
+  color: var(--selected-ink);
+}
+
+@media (max-width: 520px) {
+  .bot-page .editor-tabs {
+    display: grid;
+    grid-template-columns: auto 1fr 1fr;
+    gap: 4px;
+  }
+  .bot-page .editor-tabs button {
+    min-height: 44px;
+    padding: 5px;
+    font-size: clamp(13px, 3.4vw, 15px);
+  }
+}

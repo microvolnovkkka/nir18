@@ -149,9 +149,14 @@ export function Workspace({ session }: { session: Session }) {
       </p>
       <div className="work-heading">
         <h1>Мои публикации</h1>
-        <a className="primary" href="/workspace/new">
-          Создать материал
-        </a>
+        <div className="work-actions">
+          <a className="secondary-action" href="/bot">
+            ИИ-бот
+          </a>
+          <a className="primary" href="/workspace/new">
+            Создать материал
+          </a>
+        </div>
       </div>
       <a href={"/?author_id=" + session.user.id + "#materials"}>
         Мои материалы в каталоге →

@@ -22,6 +22,7 @@ type User struct {
 	Login string `json:"login"`
 }
 type session struct {
+	BotMode string    `json:"bot_mode"`
 	User    User      `json:"user"`
 	CSRF    string    `json:"csrf_token"`
 	Expires time.Time `json:"expires_at"`
@@ -55,7 +56,7 @@ func (s *Server) session(r *http.Request) (*session, error) {
 	if h == nil {
 		return nil, fail(401, "unauthenticated")
 	}
-	a := &session{hash: h}
+	a := &session{hash: h, BotMode: s.cfg.BotMode}
 	e := s.db.QueryRow(r.Context(), sessionSQL, h).Scan(&a.User.ID, &a.User.Name, &a.User.Login, &a.CSRF, &a.Expires)
 	if errors.Is(e, pgx.ErrNoRows) {
 		return nil, fail(401, "unauthenticated")
@@ -186,7 +187,7 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) error {
 		return e
 	}
 	defer tx.Rollback(r.Context())
-	a := session{}
+	a := session{BotMode: s.cfg.BotMode}
 	var hash string
 	var active bool
 	e = tx.QueryRow(r.Context(), "SELECT id::text,display_name,login,COALESCE(password_hash,''),is_active FROM users WHERE login=$1 FOR UPDATE", in.Login).Scan(&a.User.ID, &a.User.Name, &a.User.Login, &hash, &active)
