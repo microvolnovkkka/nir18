@@ -1,0 +1,113 @@
+[
+  {
+    "test": "article_created",
+    "result": "pass",
+    "detail": {
+      "article_id": "125631ba-ab0e-443a-a631-6ad571d2523c",
+      "media_id": "edc30824-2ae4-4d75-8501-635583083f87",
+      "counts": "1|1|1|1",
+      "sha256": "04c1ad415a95ea3d190a5193a4e83f1f155619b03b381860fd2d4228c1e5f079"
+    }
+  },
+  {
+    "test": "consistent_backup",
+    "result": "pass",
+    "detail": {
+      "bytes": 7904,
+      "api_resumed": true
+    },
+    "seconds": 17.109
+  },
+  {
+    "test": "concurrent_maintenance_rejected",
+    "result": "pass",
+    "detail": {
+      "api_still_ready": true
+    },
+    "seconds": 2.39
+  },
+  {
+    "test": "corrupt_archive_rejected_before_database",
+    "result": "pass",
+    "detail": {
+      "exit_code": 2
+    },
+    "seconds": 2.594
+  },
+  {
+    "test": "media_parent_path_rejected_before_database",
+    "result": "pass",
+    "detail": {
+      "exit_code": 1
+    },
+    "seconds": 1.547
+  },
+  {
+    "test": "running_target_rejected",
+    "result": "pass",
+    "detail": {
+      "exit_code": 1
+    },
+    "seconds": 4.922
+  },
+  {
+    "test": "nonempty_database_rejected",
+    "result": "pass",
+    "detail": {
+      "exit_code": 1
+    },
+    "seconds": 6.094
+  },
+  {
+    "test": "missing_media_backup_failed_and_api_resumed",
+    "result": "pass",
+    "detail": {
+      "exit_code": 1
+    },
+    "seconds": 11.86
+  },
+  {
+    "test": "wrong_postgres_major_rejected",
+    "result": "pass",
+    "detail": {
+      "exit_code": 1
+    },
+    "seconds": 13.063
+  },
+  {
+    "test": "nonempty_media_volume_rejected",
+    "result": "pass",
+    "detail": {
+      "database_unchanged": true
+    },
+    "seconds": 8.079
+  },
+  {
+    "test": "restore_after_deleting_both_volumes",
+    "result": "pass",
+    "detail": {
+      "article_identical": true,
+      "png_identical": true,
+      "sessions_revoked": true,
+      "foreign_edit_status": 403,
+      "counts": "1|1|0|0"
+    },
+    "seconds": 22.578
+  },
+  {
+    "test": "backup_without_images_and_stopped_api",
+    "result": "pass",
+    "detail": {
+      "api_remained_stopped": true
+    },
+    "seconds": 9.063
+  },
+  {
+    "test": "restore_without_images",
+    "result": "pass",
+    "detail": {
+      "counts": "5|0|0"
+    },
+    "seconds": 21.157
+  }
+]
