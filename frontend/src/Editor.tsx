@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   api,
   APIError,
+  NetworkError,
   type Named,
   type Publication,
   type Session,
@@ -101,7 +102,11 @@ export function Editor({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [leaseError, setLeaseError] = useState<Error | null>(null);
-  const issue = error || leaseError;
+  const [connectionError, setConnectionError] = useState<NetworkError | null>(
+    null,
+  );
+  const chatConnectionVersion = useRef(0);
+  const issue = error || leaseError || (tab !== "chat" && connectionError);
   const signInAgain =
     issue instanceof APIError &&
     (issue.status === 401 || issue.code === "csrf_failed");
@@ -184,17 +189,30 @@ export function Editor({
   }, [dirty]);
   useEffect(() => {
     let active = true;
+    let renewal = 0;
     async function renew() {
+      const attempt = ++renewal;
+      const version = chatConnectionVersion.current;
+      const currentAttempt = () => active && attempt === renewal;
       try {
         const current = await api<Session>("/api/auth/me");
         if (current.user.id !== session.user.id)
           throw new APIError(401, "Войдите снова под исходным аккаунтом.");
-        if (!active) return;
+        if (!currentAttempt()) return;
         setCsrf(current.csrf_token);
         await leaseImages(latest.current, current.csrf_token);
-        if (active) setLeaseError(null);
+        if (!currentAttempt()) return;
+        setLeaseError(null);
+        if (version === chatConnectionVersion.current) setConnectionError(null);
       } catch (e) {
-        if (active) setLeaseError(e as Error);
+        if (!currentAttempt()) return;
+        if (e instanceof NetworkError) {
+          if (version === chatConnectionVersion.current) setConnectionError(e);
+        } else {
+          setLeaseError(e as Error);
+          if (version === chatConnectionVersion.current)
+            setConnectionError(null);
+        }
       }
     }
     const timer = window.setInterval(renew, 600000);
@@ -202,10 +220,12 @@ export function Editor({
       if (!document.hidden) void renew();
     };
     document.addEventListener("visibilitychange", visible);
+    window.addEventListener("online", renew);
     return () => {
       active = false;
       clearInterval(timer);
       document.removeEventListener("visibilitychange", visible);
+      window.removeEventListener("online", renew);
     };
   }, [session.user.id]);
   function edited(field: keyof typeof fieldErrors) {
@@ -475,6 +495,11 @@ export function Editor({
             subtopic={sub}
             body={body}
             validateTopic={validateTopic}
+            connectionError={connectionError}
+            onConnectionChange={(failure) => {
+              chatConnectionVersion.current++;
+              setConnectionError(failure);
+            }}
             onDirty={setChatDirty}
             openEditor={() => setTab("edit")}
             apply={(markdown) => {

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { api, APIError } from "./api";
+import { api, APIError, NetworkError } from "./api";
 import { Markdown } from "./Markdown";
 import { Confirm } from "./Workspace";
 import {
@@ -21,6 +21,8 @@ type Props = {
   title: string;
   subtopic: string;
   body: string;
+  connectionError: NetworkError | null;
+  onConnectionChange: (failure: NetworkError | null) => void;
   validateTopic: () => boolean;
   openEditor: () => void;
   apply: (value: string) => void;
@@ -61,6 +63,8 @@ export function BotChat({
   title,
   subtopic,
   body,
+  connectionError,
+  onConnectionChange,
   validateTopic,
   openEditor,
   apply,
@@ -158,6 +162,7 @@ export function BotChat({
         signal: controller.signal,
       });
       if (active.current !== controller || controller.signal.aborted) return;
+      onConnectionChange(null);
       const reply = checkReply(result, id, current);
       setExchanges((old) => [...old, { message, snapshot: body, reply }]);
       setMessage("");
@@ -171,11 +176,14 @@ export function BotChat({
       if (active.current !== controller) return;
       const seconds = e instanceof APIError ? e.retryAfter : 0;
       if (seconds > 0) setWaitUntil(Date.now() + seconds * 1000);
-      setError(
-        timedOut
-          ? "Время ожидания истекло. Можно повторить отправку."
-          : generationError(e),
-      );
+      if (e instanceof APIError) onConnectionChange(null);
+      if (e instanceof NetworkError && !timedOut) onConnectionChange(e);
+      else
+        setError(
+          timedOut
+            ? "Время ожидания истекло. Можно повторить отправку."
+            : generationError(e),
+        );
       setLoginNeeded(
         e instanceof APIError && (e.status === 401 || e.code === "csrf_failed"),
       );
@@ -351,9 +359,9 @@ export function BotChat({
             setRetry(false);
           }}
         />
-        {error && (
+        {(error || connectionError) && (
           <div className="notice" role="alert">
-            {error}{" "}
+            {error || connectionError?.message}{" "}
             {loginNeeded && (
               <a href="/login" target="_blank" rel="noopener">
                 Войти снова в другой вкладке

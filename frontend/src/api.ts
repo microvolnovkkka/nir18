@@ -24,6 +24,11 @@ export type Listing = {
   total: number;
   total_pages: number;
 };
+export class NetworkError extends Error {
+  constructor() {
+    super("Связь с сервером прервалась. Повторите действие.");
+  }
+}
 export class APIError extends Error {
   constructor(
     public status: number,
@@ -72,8 +77,7 @@ export async function api<T>(
     ...options,
     credentials: "same-origin",
   }).catch((error: unknown) => {
-    if (error instanceof TypeError)
-      throw new Error("Связь с сервером прервалась. Повторите действие.");
+    if (error instanceof TypeError) throw new NetworkError();
     throw error;
   });
   if (!response.ok) {
