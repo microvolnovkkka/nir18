@@ -20,7 +20,7 @@ import (
 //go:embed prompt.txt
 var systemPrompt string
 
-const PromptVersion = "nir18-2026-11-06.1"
+const PromptVersion = "nir18-2026-11-28.1"
 const MaxMarkdownBytes = 800000
 const maxProviderBytes = 8 << 20
 const defaultDeepSeekMaxTokens = 1 << 15
