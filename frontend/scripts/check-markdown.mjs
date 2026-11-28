@@ -23,9 +23,21 @@ try {
       safe.includes('src="/media/'),
   );
   assert(safe.includes('rel="noopener noreferrer"'));
-  const { imageURLs, invalidImage, selectedImageAlt } =
+  const { imageBlock, imageURLs, invalidImage, selectedImageAlt } =
     await server.ssrLoadModule("/src/editorMedia.ts");
   const url = "/media/30000000-0000-4000-8000-000000000001";
+  const uploadedTag = "![Схема](" + url + ")";
+  // A selected placeholder (or old image) becomes a standalone Markdown block.
+  for (const separator of ["", "\n", "\n\n"]) {
+    const before = "Описание" + separator;
+    const after = separator + "# Заголовок";
+    const original = before + "Рисунок" + after;
+    const inserted = imageBlock(original, before.length, before.length + "Рисунок".length, uploadedTag);
+    const result = before + inserted + after;
+    assert.equal(result, "Описание\n\n" + uploadedTag + "\n\n# Заголовок");
+    assert(render(result).includes("<h1>Заголовок</h1>"));
+  }
+  assert.equal(imageBlock("", 0, 0, uploadedTag), uploadedTag + "\n\n");
   const withImages = [
     "![Схема](" + url + ")",
     "![Повтор][scheme]",

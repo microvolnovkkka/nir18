@@ -40,6 +40,29 @@ export function markdownImages(markdown: string) {
 export function imageURLs(markdown: string) {
   return [...new Set(markdownImages(markdown).map((image) => image.url))];
 }
+
+export function imageBlock(
+  markdown: string,
+  start: number,
+  end: number,
+  tag: string,
+) {
+  const before = markdown.slice(0, start);
+  const after = markdown.slice(end);
+  const prefix =
+    !before || /\n[ \t]*\n$/.test(before)
+      ? ""
+      : before.endsWith("\n")
+        ? "\n"
+        : "\n\n";
+  const suffix = /^\n[ \t]*\n/.test(after)
+    ? ""
+    : after.startsWith("\n")
+      ? "\n"
+      : "\n\n";
+  return prefix + tag + suffix;
+}
+
 export function selectedImageAlt(markdown: string, start: number, end: number) {
   if (start === end) return "";
   return (

@@ -22,7 +22,12 @@ import { Confirm, writeHeaders } from "./Workspace";
 import { ImageUpload } from "./ImageUpload";
 import { flushSync } from "react-dom";
 import { CatalogSelect } from "./CatalogSelect";
-import { invalidImage, selectedImageAlt, leaseImages } from "./editorMedia";
+import {
+  imageBlock,
+  invalidImage,
+  selectedImageAlt,
+  leaseImages,
+} from "./editorMedia";
 
 const tools = [
   ["Заголовок", "## ", "Заголовок", ""],
@@ -592,9 +597,10 @@ export function Editor({
           session={{ ...session, csrf_token: csrf }}
           initialAlt={upload.alt}
           cancel={() => setUpload(null)}
-          insert={(markup) =>
-            replaceSelection(upload, markup, markup.length, markup.length)
-          }
+          insert={(markup) => {
+            const block = imageBlock(body, upload.start, upload.end, markup);
+            replaceSelection(upload, block, block.length, block.length);
+          }}
         />
       )}
       {pendingLeave && (

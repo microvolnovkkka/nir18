@@ -86,7 +86,7 @@ header {
 header nav {
   display: flex;
   gap: 30px;
-  font-size: 14px;
+  font-size: 16px;
 }
 header nav a {
   text-decoration: none;
@@ -773,6 +773,13 @@ footer > span {
   overflow-x: auto;
   overflow-y: hidden;
 }
+.markdown .katex-display {
+  padding-block: 0.45em;
+}
+.markdown ol > li::marker {
+  font-family: var(--font-ui);
+  font-variant-numeric: lining-nums tabular-nums;
+}
 .markdown table {
   border-collapse: collapse;
   font-size: 15px;
@@ -1107,23 +1114,33 @@ footer > span {
 }
 @media (max-width: 650px) {
   header {
-    padding: 20px;
-    min-height: 80px;
-    gap: 12px;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "brand account" "nav nav";
+    padding: 14px clamp(12px, 4vw, 22px) 8px;
+    gap: 4px 10px;
+  }
+  header > .brand {
+    grid-area: brand;
+    justify-self: start;
+    font-size: clamp(22px, calc(15vw - 26px), 28px);
   }
   .brand {
     font-size: 28px;
   }
   header nav {
-    order: 3;
-    width: 100%;
+    grid-area: nav;
     gap: 24px;
-    font-size: 12px;
+    font-size: 14px;
   }
   .account {
-    margin-left: auto;
-    font-size: 12px;
+    grid-area: account;
+    gap: 10px;
+    white-space: nowrap;
+    font-size: 13px;
+  }
+  .account button {
+    padding: 8px 0;
   }
   .hero {
     grid-template-columns: 1fr;
@@ -1249,7 +1266,14 @@ footer > span {
     padding: 35px 22px 65px;
   }
   .article h1 {
-    font-size: 37px;
+    font-size: clamp(26px, 7.2vw, 32px);
+    line-height: 1.18;
+    letter-spacing: -0.035em;
+  }
+  .article > .byline,
+  .article > .topic-meta {
+    font-size: 15px;
+    color: #395c68;
   }
   .markdown {
     font-size: 17px;
